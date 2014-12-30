@@ -30,40 +30,97 @@ class Atom
 public:	
 	Contour *contour;
 	Matrix m;
-	bool reverse;
+	int reverse;
 	
-	Atom(Contour &_contour, Matrix _m, bool _reverse = false):
+	Atom(Contour &_contour, Matrix _m, int _reverse = -1):
 		contour(&_contour),		
 	  m(_m)	,
 		reverse(_reverse)
 	{	}	
 	
 	Atom(){}
+	
+	void info(string header = " ")
+	{
+		
+		qDebug()<<header.c_str() << "m: "<< m.m11<< " "<< m.m12<< " "<< m.m21<< " "<< m.m22<< " "<< m.dx<< " " << m.dy
+							<< " reverse: " << reverse;
+		
+//		qDebug()<<header.c_str() << m.m11<< " "<< m.m12<< " "<< m.m21<< " "<< m.m22<< " "<< m.dx<< " " << m.dy; 			
+		
+	}
 };
 
 
 typedef list<Atom> Atoms;
+typedef list<Atoms> AContours;
 
 class AGlyph
 {
 public:		
 	string name;
 	int index;	
-	Atoms atoms;
+	AContours contours;
 	
 	AGlyph() 
 	{
 		index = -1;						
 	}
 	
-	AGlyph(const Atoms &_atoms,string _name, int _index = -1) :
-		atoms(_atoms),
+	AGlyph(const AContours &_contours,string _name, int _index = -1) :
+		contours(_contours),
 		name(_name),
-	  index(_index)	
-	{					
+	  index(_index)
+	{
+		
+//		qDebug()<<" ------- init ---------  " ;												
+//		for (AContours::iterator it = contours.begin(); it != contours.end(); ++it) 
+//		{
+//			for (Atoms::iterator it2 = (*it).begin(); it2 != (*it).end(); ++it2) 
+//			{
+//				qDebug()<<" nodes.size() " << (*it2).contour->nodes.size();												
+//			}					
+//		}
+		
+		
+	}
+	
+	int getContours(Contours &c)
+	{
+		if(contours.empty())
+			return 0;
+		
+		
+		
+		for (AContours::iterator it = contours.begin(); it != contours.end(); ++it) 
+		{			
+			Contour contour;
+			// getting contour from atoms
+			for (Atoms::iterator it2 = (*it).begin(); it2 != (*it).end(); ++it2)
+			{
+				// connecting atoms to contour				
+				Contour atom = (*it2).contour;
+//				qDebug()<<" nodes.size: " << (*it2).contour->nodes.size();
+				
+				atom.transform((*it2).m);
+				if((*it2).reverse)
+					atom.reverse();
+								
+				for (Nodes::iterator ni = atom.nodes.begin(); ni != atom.nodes.end(); ++ni) 
+				{
+					Node n = (*ni); 
+					contour.addNode(n.kind, n.p, false);					
+				}																												
+			}			
+			c.push_back(contour);
+		}
+		
+		return 1;
 	}
 				
 };
+
+
 
 typedef list<AGlyph> AGlyphs;
 
@@ -159,7 +216,7 @@ private:
 	void addToDraw(fg::Contour &c, const fg::Matrix &m, int index);
 	QPainterPath MainWindow::contourToPath(/*QPainterPath &path, */const fg::Contour &contour, const fg::Matrix &layerMatrix);
 	void MainWindow::drawNodes(QPainterPath p);
-	int MainWindow::isNewAtom(const Contour &atom, Contours &dict, Matrix &m);
+	int MainWindow::isNewAtom(const Contour &atom, Contours &dict, Matrix &m, int &reverse);
 	double MainWindow::compareSplines(const Splines &splines1, const Splines &splines2, int len);		
 	void MainWindow::contourToDebug(const Contour &c) const;
 	void MainWindow::coutRect(const string &header, const Rect &r);
