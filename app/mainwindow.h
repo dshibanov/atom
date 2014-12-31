@@ -16,6 +16,7 @@
 #include "curve.h"
 #include "blend.h"
 #include "parser.h"
+#include <sstream>
 
 #include "composedglyph.h"
 
@@ -42,12 +43,20 @@ public:
 	
 	void info(string header = " ")
 	{
+				
+		//							<< " reverse: " << reverse;		
+		//		qDebug()<<header.c_str() << m.m11<< " "<< m.m12<< " "<< m.m21<< " "<< m.m22<< " "<< m.dx<< " " << m.dy; 					
+		//		string ctr = "ajsdhjad";
 		
-		qDebug()<<header.c_str() << "m: "<< m.m11<< " "<< m.m12<< " "<< m.m21<< " "<< m.m22<< " "<< m.dx<< " " << m.dy
-							<< " reverse: " << reverse;
+		std::stringstream s_result;
+		for (Nodes::iterator it = contour->nodes.begin(); it != contour->nodes.end(); ++it) 
+		{
+			s_result << " ["<< (*it).kind << "| (" << (*it).p.x << ", " << (*it).p.y << ")];";
+		}
 		
-//		qDebug()<<header.c_str() << m.m11<< " "<< m.m12<< " "<< m.m21<< " "<< m.m22<< " "<< m.dx<< " " << m.dy; 			
+		qDebug()<<header.c_str() << "m: "<< m.m11<< " "<< m.m12<< " "<< m.m21<< " "<< m.m22<< " "<< m.dx<< " " << m.dy << s_result.str().c_str();
 		
+		//		qDebug()<<" s_result " <<  s_result.str().c_str();		
 	}
 };
 
@@ -222,6 +231,7 @@ private:
 	void MainWindow::coutRect(const string &header, const Rect &r);
 	void MainWindow::coutMatrix(const string &header, const Matrix &m);
 	void MainWindow::coutSplines(const Splines &s);
+	std::stringstream MainWindow:: ctrToString(const Contour &contour);
 	// ---
 	
 	void paintEvent(QPaintEvent *e);

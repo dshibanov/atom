@@ -359,71 +359,62 @@ void MainWindow::on_DecomposeBtn_clicked()
 		{
 			if(ni != (*it).nodes.begin() && ((*ni).kind == Node::Move || (*ni).kind == Node::On))
 			{
-				samples++;
 				// new atom beginning	...
-				// ... and it means that old atom in c
+				Matrix m;
+				Atom *a;
+				samples++;								
 				ac.nodes.push_back((*ni));				
-				lastp = (*std::prev(ac.nodes.end())).p;
-				// ... normalization				
+				lastp = (*std::prev(ac.nodes.end())).p;				
 				Rect r = ac.boundingBox(false);
 				ltops.push_back(Point(r.left(), r.top()));											
 				ac.transform(Matrix(1,0,0,1,-r.left(),-r.top()));														
-				Matrix m;
-				Atom *a;
-				int reverse = -1;
 				
+				int reverse = -1;				
 				// check for new item
 				if(dict.empty())
 				{
-					//					qDebug()<<"first";
-					//					atom.autoClose() = false;
-					//					atom.open = true;
+					//					qDebug()<<"first";					
 					ac.open = true;
-					dict.push_back(ac);					
-					a = new Atom(ac, Matrix(1, 0, 0, 1, r.left(), r.top()), 0);
+					dict.push_back(ac);	
 					
+					Contours::iterator ci = dict.end();
+					ci--;
+					
+					a = new Atom((*ci), Matrix(1, 0, 0, 1, r.left(), r.top()), 0);																																								
 				}
 				else if(isNewAtom(ac, dict, m, reverse) && dict.size() < 200000)
 				{
 					qDebug()<<"new ";
 					// add atom to dict
 					ac.open = true;
-					dict.push_back(ac);					
-					a = new Atom(ac, Matrix(1,0,0,1,r.left(),r.top()), 0);					
+					dict.push_back(ac);
+					
+					Contours::iterator ci = dict.end();
+					ci--;
+					a = new Atom((*ci), Matrix(1,0,0,1,r.left(),r.top()), 0);					
 				}
 				else
 				{
 					//					qDebug()<<" found existing !!! ";
-					a = new Atom(ac, Matrix(m.m11, m.m12, m.m21, m.m22, m.dx + r.left(), m.dy + r.top()), reverse);					
+					Contours::iterator ci = dict.end();
+					ci--;
+					a = new Atom((*ci), Matrix(m.m11, m.m12, m.m21, m.m22, m.dx + r.left(), m.dy + r.top()), reverse);					
 				}
-				
-				//				coutMatrix(" m: ", m);				
-				//				qDebug()<<" a.nodes.size() " << a.contour->nodes.size();
+								
 				a->info("current ");								
 				atoms.push_back(*a);
 				
 				if(!atoms.empty())
 				{
-					Atoms::iterator aii = atoms.begin();
-					(*aii).info("begin ");					
-					std::advance(aii, atoms.size()-1);					
-					(*aii).info("end ");					
-				}
-				
-				qDebug()<<" a.contour->nodes.size() " << a->contour->nodes.size();
-//				if(atoms.size() > 1)
-//				{
 //					Atoms::iterator aii = atoms.begin();
 					
-////					Atom at;					
-							
-////					qDebug()<<" (*aii)->nodes.size() " << (*aii).contour->nodes.size() << " atoms.size() " << atoms.size();					
-//					//					qDebug()<<" (*aii)->m " << (*aii).contour->nodes.size() << " atoms.size() " << atoms.size();					
-////					coutMatrix(" (*aii)->m: ", (*aii).m);				
-//				}
-					
-					
-												
+					qDebug()<<"######### ---------------";
+					for (Atoms::iterator aii = atoms.begin(); aii != atoms.end(); ++aii) 
+					{
+						(*aii).info("# ");
+					}
+				}
+								
 				// and here start to new atom
 				ac.clear();
 				ac.open = true;
@@ -436,14 +427,23 @@ void MainWindow::on_DecomposeBtn_clicked()
 			ac.nodes.push_back((*ni));						
 		}
 	
-//		qDebug()<<" ------- prepre_init ---------  " ;												
-//		for (Atoms::iterator it2 = atoms.begin(); it2 != atoms.end(); ++it2) 
-//		{
-//			qDebug()<<" nodes.size() " << (*it2).contour->nodes.size();												
-//		}					
+		qDebug()<<" ------- prepre_init ---------  " ;												
+		for (Atoms::iterator it2 = atoms.begin(); it2 != atoms.end(); ++it2) 
+		{					
+			(*it2).info("# ");
+		}					
+		
+		qDebug()<<" contours in dictionary ...  " ;
+		for (Contours::iterator it2 = dict.begin(); it2 != dict.end(); ++it2) 
+		{
+			qDebug()<<"$$ " << ctrToString((*it2)).str().c_str();
+			
+		}
 		
 		acontours.push_back(atoms);
 	}
+	
+	qDebug()<<" acontours.size: " << acontours.size();
 	
 //	qDebug()<<" ------- pre_init ---------  " ;												
 //	for (AContours::iterator it = acontours.begin(); it != acontours.end(); ++it) 
@@ -491,10 +491,6 @@ void MainWindow::on_DecomposeBtn_clicked()
 	{
 		addToDraw((*it), fg::Point(translation.x,bottom_line + translation.y), 1);		
 	}
-	
-	
-	
-	
 }
 
 void MainWindow::coutMatrix(const string &header, const Matrix &m)
@@ -838,7 +834,19 @@ void MainWindow::on_atomsList_itemClicked(QListWidgetItem *item)
 {
 }
 
-
+std::stringstream MainWindow:: ctrToString(const Contour &contour)
+{
+	
+	std::stringstream s_result;
+	for (Nodes::const_iterator it = contour.nodes.begin(); it != contour.nodes.end(); ++it) 
+	{
+		s_result << " ["<< (*it).kind << "| (" << (*it).p.x << ", " << (*it).p.y << ")];";
+	}
+	
+	//	qDebug()<<header.c_str() << "m: "<< m.m11<< " "<< m.m12<< " "<< m.m21<< " "<< m.m22<< " "<< m.dx<< " " << m.dy << s_result.str().c_str();
+	
+ return	s_result;
+}
 
 void MainWindow::on_atomsList_currentItemChanged(QListWidgetItem *item, QListWidgetItem *previous)
 {		
@@ -1003,12 +1011,17 @@ void MainWindow::on_atomsList_currentItemChanged(QListWidgetItem *item, QListWid
 			
 			
 			// but we need to have glyph represented as sequence of atoms... 
-			// it means we need new class for this....
-			
-			
-			
+			// it means we need new class for this....									
 		}
 
+		
+		qDebug()<<" contours in dictionary ...  " ;
+		for (Contours::iterator it2 = dict.begin(); it2 != dict.end(); ++it2) 
+		{
+			qDebug()<<"$$ " << ctrToString((*it2)).str().c_str();
+			
+		}
+		
 
     this->update();
   }
