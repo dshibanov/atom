@@ -32,11 +32,13 @@ public:
 	Contour *contour;
 	Matrix m;
 	int reverse;
+	int contourIndex;
 	
-	Atom(Contour &_contour, Matrix _m, int _reverse = -1):
+	Atom(Contour &_contour, Matrix _m, int _reverse = -1, int _contourIndex = 0):
 		contour(&_contour),		
 	  m(_m)	,
-		reverse(_reverse)
+		reverse(_reverse),
+		contourIndex(_contourIndex)		
 	{	}	
 	
 	Atom(){}
@@ -51,12 +53,10 @@ public:
 		std::stringstream s_result;
 		for (Nodes::iterator it = contour->nodes.begin(); it != contour->nodes.end(); ++it) 
 		{
-			s_result << " ["<< (*it).kind << "| (" << (*it).p.x << ", " << (*it).p.y << ")];";
+			s_result << " ["<< (*it).kind << " : (" << (*it).p.x << ", " << (*it).p.y << ")];";
 		}
 		
-		qDebug()<<header.c_str() << "m: "<< m.m11<< " "<< m.m12<< " "<< m.m21<< " "<< m.m22<< " "<< m.dx<< " " << m.dy << s_result.str().c_str();
-		
-		//		qDebug()<<" s_result " <<  s_result.str().c_str();		
+		qDebug()<<header.c_str() <<"#"<< contourIndex<< " m: "<< m.m11<< " "<< m.m12<< " "<< m.m21<< " "<< m.m22<< " "<< m.dx<< " " << m.dy << s_result.str().c_str();				
 	}
 };
 
@@ -99,36 +99,56 @@ public:
 		if(contours.empty())
 			return 0;
 		
-		
-		
 		for (AContours::iterator it = contours.begin(); it != contours.end(); ++it) 
-		{			
+		{
 			Contour contour;
 			// getting contour from atoms
 			for (Atoms::iterator it2 = (*it).begin(); it2 != (*it).end(); ++it2)
 			{
 				// connecting atoms to contour				
-				Contour atom = (*it2).contour;
-//				qDebug()<<" nodes.size: " << (*it2).contour->nodes.size();
+				Contour atom = (*(*it2).contour);
+				//	qDebug()<<"atom nodes size: " << atom.nodes.size() ;
+				//	qDebug()<<" atom #"<<(*it2).contourIndex;
+				//	qDebug()<<" nodes.size: " << (*it2).contour->nodes.size();
 				
+//				qDebug()<<" before: " <<ctrToString(atom).str().c_str();
 				atom.transform((*it2).m);
+				
+				coutMatrix("m: ", (*it2).m);
 				if((*it2).reverse)
-					atom.reverse();
+					atom.reverse();				
+				//	qDebug()<<" after: " <<ctrToString(atom).str().c_str();				
+				//	qDebug()<<"atom nodes size: " << atom.nodes.size();
 								
 				for (Nodes::iterator ni = atom.nodes.begin(); ni != atom.nodes.end(); ++ni) 
 				{
 					Node n = (*ni); 
 					contour.addNode(n.kind, n.p, false);					
-				}																												
-			}			
+				}
+			}
 			c.push_back(contour);
 		}
 		
 		return 1;
+	}			
+	
+	void coutMatrix(const string &header, const Matrix &m)
+	{
+		qDebug()<<header.c_str() << m.m11<< " "<< m.m12<< " "<< m.m21<< " "<< m.m22<< " "<< m.dx<< " " << m.dy; 			
 	}
-				
-};
 
+	std::stringstream ctrToString(const Contour &contour)
+	{	
+		std::stringstream s_result;
+		for (Nodes::const_iterator it = contour.nodes.begin(); it != contour.nodes.end(); ++it) 
+		{
+			s_result << " ["<< (*it).kind << " : (" << (*it).p.x << ", " << (*it).p.y << ")];";
+		}
+		
+		s_result<<"\n";		
+	 return	s_result;
+	}	
+};
 
 
 typedef list<AGlyph> AGlyphs;
@@ -225,7 +245,7 @@ private:
 	void addToDraw(fg::Contour &c, const fg::Matrix &m, int index);
 	QPainterPath MainWindow::contourToPath(/*QPainterPath &path, */const fg::Contour &contour, const fg::Matrix &layerMatrix);
 	void MainWindow::drawNodes(QPainterPath p);
-	int MainWindow::isNewAtom(const Contour &atom, Contours &dict, Matrix &m, int &reverse);
+	int MainWindow::checkNewAtom(const Contour &atom, Contours &dict, Matrix &m, int &reverse);
 	double MainWindow::compareSplines(const Splines &splines1, const Splines &splines2, int len);		
 	void MainWindow::contourToDebug(const Contour &c) const;
 	void MainWindow::coutRect(const string &header, const Rect &r);
