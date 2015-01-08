@@ -28,6 +28,8 @@ MainWindow::MainWindow(QWidget *parent) :
   file = new QFile(QFileDialog::getOpenFileName());
   ui->fontPath->setText(file->fileName());
   readFontFile(file->fileName(), QString("D://"));
+	
+	len = ui->lenEdit->text().toInt();
 
 //  globalPath = QPainterPath();
 //  paths.clear();
@@ -40,6 +42,8 @@ MainWindow::MainWindow(QWidget *parent) :
 //  bbox_tolerance = 100;
 //  fast = false;
 //  tolerance = 0.2;
+	
+	globalCtr = 0;
 
 
   this->update();
@@ -321,171 +325,348 @@ void MainWindow::glyphToDraw(fg::Glyph &g)
 }
 
 
+//void MainWindow::on_DecomposeBtn_clicked()
+//{			
+//	// getting glyph 
+//	Glyph* g;		
+//	int glyphIndex = 0;
+//	for (fg::Glyphs::const_iterator it = package->font->glyphs.begin(); it != package->font->glyphs.end(); ++it, ++glyphIndex)
+//	{
+//		if((*it)->name.compare(ui->glyphsList->currentItem()->text().toStdString()) == 0)//ui->glyphsList->currentRow() == glyphIndex)
+//			//		if((*it)->name.compare("I") == 0)
+//		{						
+//			g = (*it);
+//			qDebug()<<"name: " << g->name.c_str();	
+//		}
+//	}
+			
+//	// cycle by contours
+//	fg::Layer* layer;
+//  layer = g->fgData()->findLayer("Body");
+//	int samples = 0;
+//	AContours acontours;
+//	int count = 0;
+	
+//  for (fg::Contours::iterator it = layer->shapes.front().contours.begin(); it != layer->shapes.front().contours.end(); ++it, ++count)
+//  {		
+////				++it;
+//		// decompose contour on particles
+//		// cycle by particles		
+//		//		contourToDebug((*it));
+//		Atoms atoms;
+//		Contour ac;
+//		ac.open = true;
+		
+////		list<Point> ltops;
+//		list<Point> zeroPoints;
+//		Point lastp;
+//		int j = 0;
+		
+//		for(Nodes::iterator ni = (*it).nodes.begin(); ni != (*it).nodes.end() && samples < 200000; ++ni, ++j)
+//		{
+//			if(ni != (*it).nodes.begin() && ((*ni).kind == Node::Move || (*ni).kind == Node::On))
+//			{
+//				// new atom beginning	...
+//				Matrix m;
+//				Atom *a;											
+//				ac.nodes.push_back((*ni));				
+//				lastp = (*std::prev(ac.nodes.end())).p;				
+//				Rect r = ac.boundingBox(false);
+				
+////				Node &acfirst1 = (*(ac.nodes.begin()));
+//				Point pfirst = (*(ac.nodes.begin())).p;
+////				ltops.push_back(Point(r.left(), r.top()));	
+				
+////				qDebug()<<" acfirst1 xy" << acfirst1.p.x << " " << acfirst1.p.y;
+//				zeroPoints.push_back(pfirst);
+//				ac.transform(Matrix(1,0,0,1,-pfirst.x,-pfirst.y));	
+												
+//				std::stringstream s1;
+//				s1<<"#" << samples;								
+//				coutRect(s1.str().c_str(),r);
+				
+//				int reverse = 0;
+//				// check for new item
+//				if(dict.empty())
+//				{
+//										qDebug()<<"first";
+//					ac.open = true;
+//					dict.push_back(ac);					
+//					Contours::iterator ci = dict.end();
+//					ci--;					
+//					qDebug()<<" acfirst1 xy" << pfirst.x << " " << pfirst.y;
+//					a = new Atom((*ci), Matrix(1, 0, 0, 1, pfirst.x, pfirst.y), 0, dict.size()-1);
+//				}
+//				else 
+//				{
+////					m = Matrix(-1,0,0,-1);
+//					int n = checkNewAtom(ac, dict, m, reverse);
+////					coutMatrix("got m: ", m);
+//					if(n == -1 && dict.size() < 200000)
+//					{
+////						qDebug()<<" new";
+//						// add atom to dict
+//						ac.open = true;
+//						dict.push_back(ac);
+						
+//						Contours::iterator ci = dict.end();
+//						ci--;
+//						a = new Atom((*ci), Matrix(1,0,0,1, pfirst.x, pfirst.y), 0, dict.size()-1);
+//					}
+//					else
+//					{
+//						//					qDebug()<<" found existing !!! ";
+//						Contours::iterator ci = dict.begin();
+//						std::advance(ci, n);
+//						//ci--;						
+//						std::stringstream s;
+//						s<<" found existing #" << n <<" with reverse ==  " << reverse <<  " and with matrix: ";
+//						coutMatrix(s.str().c_str(), m);
+//						a = new Atom((*ci), Matrix(m.m11, m.m12, m.m21, m.m22, m.dx + pfirst.x, m.dy + pfirst.y), reverse, n);					
+//					}
+//				}
+				
+								
+////				a->info("current ");								
+//				atoms.push_back(*a);
+
+								
+//				// and here start to new atom
+//				ac.clear();
+//				ac.open = true;
+//				if((*ni).kind == Node::NodeType::On)
+//				{
+//					// add Move to the beginning of atom
+//					ac.nodes.push_back(Node(Node::Move, lastp));
+//				}
+				
+//				samples++;	
+//			}			
+//			ac.nodes.push_back((*ni));						
+//		}
+	
+
+
+//		acontours.push_back(atoms);
+//	}
+	
+//	agdict.push_back(AGlyph(acontours,g->name.c_str(), g->index));
+//	// add atoms to list
+//	glyphIndex = 0;
+//	for (fg::Contours::const_iterator it = dict.begin(); it != dict.end(); ++it, glyphIndex++)
+//  {
+//    ui->atomsList->addItem(QString("#%1 ").arg(glyphIndex));//.arg((*it)->name.c_str()));        
+////		coutRect("#", (*it).boundingBox(false));
+////		qDebug()<<" open " << (*it).open;
+//  }	
+
+//	// here we need to draw decomposed glyph	
+//	// need to get contours
+//	// ну тут поидее должны уже иметь все контура для создания глифа
+//	Contours cs;	
+//	AGlyphs::iterator ai = agdict.end();
+//	ai--;
+//	//std::advance(ai, 1);
+//	qDebug()<<" ================= \n trying to get contours....";
+//	if((*ai).getContours(cs))
+//	{
+//		qDebug()<<" succesfully got contours ";		
+//	}
+//	else
+//	{
+//		qDebug()<<" got error ";				
+//	}
+	
+//	// have got contours, draw it	
+//	QPointF drawCenter = ui->canvasLeft->geometry().center();       
+//	fg::GlyphsR grs;    
+//	Rect bbox = g->boundingBox(grs, fg::Matrix(1, 0, 0, -1, 0, 0),false);      
+//	Point dCenter = Point(ui->canvasLeft->x() + ui->canvasLeft->size().width()/2,ui->canvasLeft->y() + ui->canvasLeft->size().height()/2);    
+//	fg::Point translation;
+//	fg::Point center;     
+//  center = fg::Point(drawCenter.x() - 200 * global_scale, drawCenter.y());
+//  int bottom_line = center.y + 900*global_scale;
+//	Point glyphC = Point(bbox.left() + bbox.width() / 2, bbox.top() + bbox.height() / 2);
+//	translation.x = -(glyphC.x*2.5*global_scale - dCenter.x);
+	
+//	clear();
+//	qDebug()<<" cs.size() " << cs.size();
+	
+//	for (Contours::iterator it = cs.begin(); it != cs.end(); ++it)
+//	{
+//		addToDraw((*it), fg::Point(translation.x,bottom_line + translation.y), 1);		
+////		qDebug()<<" #.nodes.size() "<< (*it).nodes.size()<< " " << ctrToString((*it)).str().c_str();
+//	}
+			
+//	this->update();
+//}
+
 void MainWindow::on_DecomposeBtn_clicked()
 {			
 	// getting glyph 
 	Glyph* g;		
 	int glyphIndex = 0;
-	for (fg::Glyphs::const_iterator it = package->font->glyphs.begin(); it != package->font->glyphs.end(); ++it, ++glyphIndex)
+	for (fg::Glyphs::const_iterator it = package->font->glyphs.begin(); it != package->font->glyphs.end() && glyphIndex < 20; ++it, ++glyphIndex)
 	{
-		if((*it)->name.compare(ui->glyphsList->currentItem()->text().toStdString()) == 0)//ui->glyphsList->currentRow() == glyphIndex)
-			//		if((*it)->name.compare("I") == 0)
-		{						
+//		if((*it)->name.compare(ui->glyphsList->currentItem()->text().toStdString()) == 0)//ui->glyphsList->currentRow() == glyphIndex)
+//			//		if((*it)->name.compare("I") == 0)
+//		{						
+//			g = (*it);
+//			qDebug()<<"name: " << g->name.c_str();									
+//		}
+		fg::Layer* layer = (*it)->bodyLayer();
+		if (layer && layer->countNodes() > 0)
+		{
 			g = (*it);
-			qDebug()<<"name: " << g->name.c_str();	
+			qDebug()<<"name: " << g->name.c_str() << " # "<<glyphIndex;									
+			
+			// cycle by contours
+			fg::Layer* layer;
+		  layer = g->fgData()->findLayer("Body");
+			int samples = 0;
+			AContours acontours;
+			int count = 0;
+			
+		  for (fg::Contours::iterator it = layer->shapes.front().contours.begin(); it != layer->shapes.front().contours.end(); ++it, ++count)
+		  {		
+				Atoms atoms;
+				Contour ac;
+				ac.open = true;
+				list<Point> zeroPoints;
+				Point lastp;
+				int j = 0;
+				
+				for(Nodes::iterator ni = (*it).nodes.begin(); ni != (*it).nodes.end() && samples < 200000; ++ni, ++j)
+				{
+					if(ni != (*it).nodes.begin() && ((*ni).kind == Node::Move || (*ni).kind == Node::On))
+					{
+						// new atom beginning	...
+						Matrix m;
+						Atom *a;											
+						ac.nodes.push_back((*ni));				
+						lastp = (*std::prev(ac.nodes.end())).p;				
+						Rect r = ac.boundingBox(false);				
+						Point pfirst = (*(ac.nodes.begin())).p;
+						zeroPoints.push_back(pfirst);
+						ac.transform(Matrix(1,0,0,1,-pfirst.x,-pfirst.y));													
+						std::stringstream s1;
+		//				s1<<"#" << samples;								
+//						coutRect(s1.str().c_str(),r);				
+						int reverse = 0;
+						// check for new item
+						if(dict.empty())
+						{										
+							ac.open = true;
+							dict.push_back(ac);					
+							Contours::iterator ci = dict.end();
+							ci--;					
+		//					qDebug()<<" acfirst1 xy" << pfirst.x << " " << pfirst.y;
+							a = new Atom((*ci), Matrix(1, 0, 0, 1, pfirst.x, pfirst.y), 0, dict.size()-1);
+						}
+						else 
+						{
+		//					m = Matrix(-1,0,0,-1);
+							int n = checkNewAtom(ac, dict, m, reverse);
+		//					coutMatrix("got m: ", m);
+							if(n == -1 && dict.size() < 200000)
+							{
+		//						qDebug()<<" new";
+								// add atom to dict
+								ac.open = true;
+								dict.push_back(ac);
+								
+								Contours::iterator ci = dict.end();
+								ci--;
+								a = new Atom((*ci), Matrix(1,0,0,1, pfirst.x, pfirst.y), 0, dict.size()-1);
+							}
+							else
+							{
+								//					qDebug()<<" found existing !!! ";
+								Contours::iterator ci = dict.begin();
+								std::advance(ci, n);
+								//ci--;						
+								std::stringstream s;
+		//						s<<" found existing #" << n <<" with reverse ==  " << reverse <<  " and with matrix: ";
+		//						coutMatrix(s.str().c_str(), m);
+								a = new Atom((*ci), Matrix(m.m11, m.m12, m.m21, m.m22, m.dx + pfirst.x, m.dy + pfirst.y), reverse, n);					
+							}
+						}
+														
+		//				a->info("current ");								
+						atoms.push_back(*a);
+										
+						// and here start to new atom
+						ac.clear();
+						ac.open = true;
+						if((*ni).kind == Node::NodeType::On)
+						{
+							// add Move to the beginning of atom
+							ac.nodes.push_back(Node(Node::Move, lastp));
+						}
+						samples++;	
+					}
+					ac.nodes.push_back((*ni));
+				}	
+				acontours.push_back(atoms);
+			}
+			
+			agdict.push_back(AGlyph(acontours,g->name.c_str(), g->index));
+			
+			// add atoms to list
+			int atomCount = dict.size()-1;
+	//		glyphIndex = dict.size()-1;
+			for (fg::Contours::const_iterator it = dict.begin(); it != dict.end(); ++it, atomCount++)
+		  {
+		    ui->atomsList->addItem(QString("#%1 ").arg(atomCount));//.arg((*it)->name.c_str()));        
+		  }	
+			
+			
+			
 		}
+		
+		
 	}
 			
-	// cycle by contours
-	fg::Layer* layer;
-  layer = g->fgData()->findLayer("Body");
-	int samples = 0;
-	AContours acontours;
-	
-  for (fg::Contours::iterator it = layer->shapes.front().contours.begin();it != layer->shapes.front().contours.end(); ++it)
-  {		
-		//		++it;
-		// decompose contour on particles
-		// cycle by particles		
-		//		contourToDebug((*it));
-		Atoms atoms;
-		Contour ac;
-		ac.open = true;
-		
-		list<Point> ltops;
-		Point lastp;
-		int j = 0;
-		
-		for(Nodes::iterator ni = (*it).nodes.begin(); ni != (*it).nodes.end() && samples < 5000; ++ni, ++j)
-		{
-			if(ni != (*it).nodes.begin() && ((*ni).kind == Node::Move || (*ni).kind == Node::On))
-			{
-				// new atom beginning	...
-				Matrix m;
-				Atom *a;											
-				ac.nodes.push_back((*ni));				
-				lastp = (*std::prev(ac.nodes.end())).p;				
-				Rect r = ac.boundingBox(false);
-				ltops.push_back(Point(r.left(), r.top()));											
-				ac.transform(Matrix(1,0,0,1,-r.left(),-r.top()));	
-												
-				std::stringstream s1;
-				s1<<"#" << samples;								
-				coutRect(s1.str().c_str(),r);
-				
-				int reverse = -1;				
-				// check for new item
-				if(dict.empty())
-				{
-										qDebug()<<"first";
-					ac.open = true;
-					dict.push_back(ac);					
-					Contours::iterator ci = dict.end();
-					ci--;
-					a = new Atom((*ci), Matrix(1, 0, 0, 1, r.left(), r.top()), 0, dict.size()-1);
-				}
-				else 
-				{
-					m = Matrix(-1,0,0,-1);
-					int n = checkNewAtom(ac, dict, m, reverse);
-//					coutMatrix("got m: ", m);
-					if(n == -1 && dict.size() < 200000)
-					{
-//						qDebug()<<" new";
-						// add atom to dict
-						ac.open = true;
-						dict.push_back(ac);
-						
-						Contours::iterator ci = dict.end();
-						ci--;
-						a = new Atom((*ci), Matrix(1,0,0,1,r.left(),r.top()), 0, dict.size()-1);																	
-					}
-					else
-					{
-						//					qDebug()<<" found existing !!! ";
-						Contours::iterator ci = dict.begin();
-						std::advance(ci, n);
-						//ci--;
-						
-						std::stringstream s;
-						s<<" found existing #" << n << " with matrix: ";												
-						coutMatrix(s.str().c_str(), m);
-						a = new Atom((*ci), Matrix(m.m11, m.m12, m.m21, m.m22, m.dx + r.left(), m.dy + r.top()), reverse, n);					
-					}
-				}
-				
-								
-//				a->info("current ");								
-				atoms.push_back(*a);
-
-								
-				// and here start to new atom
-				ac.clear();
-				ac.open = true;
-				if((*ni).kind == Node::NodeType::On)
-				{
-					// add Move to the beginning of atom
-					ac.nodes.push_back(Node(Node::Move, lastp));
-				}
-				
-				samples++;	
-			}			
-			ac.nodes.push_back((*ni));						
-		}
-	
-
-
-		acontours.push_back(atoms);
-	}
-	
-	agdict.push_back(AGlyph(acontours,g->name.c_str(), g->index));
-	// add atoms to list
-	glyphIndex = 0;
-	for (fg::Contours::const_iterator it = dict.begin(); it != dict.end(); ++it, glyphIndex++)
-  {
-    ui->atomsList->addItem(QString("#%1 ").arg(glyphIndex));//.arg((*it)->name.c_str()));        
-//		coutRect("#", (*it).boundingBox(false));
-//		qDebug()<<" open " << (*it).open;
-  }	
 
 	// here we need to draw decomposed glyph	
 	// need to get contours
 	// ну тут поидее должны уже иметь все контура для создания глифа
-	Contours cs;	
-	AGlyphs::iterator ai = agdict.begin();
+//	Contours cs;	
+//	AGlyphs::iterator ai = agdict.end();
+//	ai--;
 	//std::advance(ai, 1);
-	qDebug()<<" ================= \n trying to get contours....";
-	if((*ai).getContours(cs))
-	{
-		qDebug()<<" succesfully got contours ";		
-	}
-	else
-	{
-		qDebug()<<" got error ";				
-	}
+//	qDebug()<<" ================= \n trying to get contours....";
+//	if((*ai).getContours(cs))
+//	{
+//		qDebug()<<" succesfully got contours ";		
+//	}
+//	else
+//	{
+//		qDebug()<<" got error ";				
+//	}
 	
 	// have got contours, draw it	
-	QPointF drawCenter = ui->canvasLeft->geometry().center();       
-	fg::GlyphsR grs;    
-	Rect bbox = g->boundingBox(grs, fg::Matrix(1, 0, 0, -1, 0, 0),false);      
-	Point dCenter = Point(ui->canvasLeft->x() + ui->canvasLeft->size().width()/2,ui->canvasLeft->y() + ui->canvasLeft->size().height()/2);    
-	fg::Point translation;
-	fg::Point center;     
-  center = fg::Point(drawCenter.x() - 200 * global_scale, drawCenter.y());
-  int bottom_line = center.y + 900*global_scale;
-	Point glyphC = Point(bbox.left() + bbox.width() / 2, bbox.top() + bbox.height() / 2);
-	translation.x = -(glyphC.x*2.5*global_scale - dCenter.x);
+//	QPointF drawCenter = ui->canvasLeft->geometry().center();       
+//	fg::GlyphsR grs;    
+//	Rect bbox = g->boundingBox(grs, fg::Matrix(1, 0, 0, -1, 0, 0),false);      
+//	Point dCenter = Point(ui->canvasLeft->x() + ui->canvasLeft->size().width()/2,ui->canvasLeft->y() + ui->canvasLeft->size().height()/2);    
+//	fg::Point translation;
+//	fg::Point center;     
+//  center = fg::Point(drawCenter.x() - 200 * global_scale, drawCenter.y());
+//  int bottom_line = center.y + 900*global_scale;
+//	Point glyphC = Point(bbox.left() + bbox.width() / 2, bbox.top() + bbox.height() / 2);
+//	translation.x = -(glyphC.x*2.5*global_scale - dCenter.x);
 	
-	clear();
-	qDebug()<<" cs.size() " << cs.size();
+//	clear();
+//	qDebug()<<" cs.size() " << cs.size();
 	
-	for (Contours::iterator it = cs.begin(); it != cs.end(); ++it)
-	{
-		addToDraw((*it), fg::Point(translation.x,bottom_line + translation.y), 1);		
-//		qDebug()<<" #.nodes.size() "<< (*it).nodes.size()<< " " << ctrToString((*it)).str().c_str();
-	}
+//	for (Contours::iterator it = cs.begin(); it != cs.end(); ++it)
+//	{
+//		addToDraw((*it), fg::Point(translation.x,bottom_line + translation.y), 1);		
+////		qDebug()<<" #.nodes.size() "<< (*it).nodes.size()<< " " << ctrToString((*it)).str().c_str();
+//	}
 			
-	this->update();
+//	this->update();
 }
 
 void MainWindow::coutMatrix(const string &header, const Matrix &m)
@@ -509,7 +690,6 @@ void MainWindow::coutSplines(const Splines &s)
 	}			
 }
 
-
 /**
  * @brief MainWindow::isExistedAtom - return index of existed atom, or -1 if there is 
  * no such atom in dictionary..
@@ -530,36 +710,50 @@ int MainWindow::checkNewAtom(const Contour &atom, Contours &dict, Matrix &m, int
 	errors.reserve(8);
 	Splines s2 = contourToSplines(atom, len);
 	double l2 = s2.size() * len;
-	
-	coutRect("atom rect: ", atom.boundingBox(false));
+//	Node &afirst = (*(atom.nodes.begin()));	
+//	coutRect("atom rect: ", atom.boundingBox(false));
 	
 	int n = 0;
 	for (Contours::iterator it = dict.begin(); it != dict.end(); ++it, ++n)
-	{
+	{		
+//		qDebug()<<" compare with atom# " << n;
 		errors.clear();
 		mxs.clear();
 		list<Splines> representations;
 		Rect r = (*it).boundingBox(false);	
-		coutRect("source rect: ", r);
+//		coutRect("source rect: ", r);
 		
 		for (int i = 0; i < 4; ++i)
 		{
-			int tX = r.left();
-			int tY = r.top();
+//			int tX = r.left();
+//			int tY = r.top();
 			
-			if(scaleXY[i][0] == -1)
-			{
-				tX += r.width();										 										 
-			}
+//			if(scaleXY[i][0] == -1)
+//			{
+//				tX += r.width();										 										 
+//			}
 								
-			if(scaleXY[i][1] == -1)
-			{
-				tY += -r.height();
-			}
+//			if(scaleXY[i][1] == -1)
+//			{
+//				tY += -r.height();
+//			}						
+////			mxs.push_back(Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], tX, tY));
+//			mxs.push_back(Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], 0, 0));			
+////			representations.push_back(contourToSplines((*it), len, Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], tX, tY), 0));
+////			representations.push_back(contourToSplines((*it), len, Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], tX, tY), 1));
+//			representations.push_back(contourToSplines((*it), len, Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], 0, 0), 0));
+//			representations.push_back(contourToSplines((*it), len, Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], 0, 0), 1));
 						
-			mxs.push_back(Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], tX, tY));		
-			representations.push_back(contourToSplines((*it), len, Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], tX, tY), 0));
-			representations.push_back(contourToSplines((*it), len, Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], tX, tY), 1));
+			int dX = 0;
+			int dY = 0;							
+			Nodes::iterator afirst = (*it).nodes.begin();	
+			std::advance(afirst, (*it).nodes.size() - 1);			
+			dX = (scaleXY[i][0] == -1) ? (*afirst).p.x : -(*afirst).p.x; 				
+			dY = (scaleXY[i][1] == -1) ? (*afirst).p.y : -(*afirst).p.y;			
+			mxs.push_back(Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], 0, 0));
+			mxs.push_back(Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], dX, dY));
+			representations.push_back(contourToSplines((*it), len, Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], 0, 0), 0));
+			representations.push_back(contourToSplines((*it), len, Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], dX, dY), 1));				
 		}
 				
 		int mxsCounter = 0;		
@@ -572,14 +766,13 @@ int MainWindow::checkNewAtom(const Contour &atom, Contours &dict, Matrix &m, int
 			double alen = (l2 + l1) / 2;		
 			double error = compareSplines((*si), s2, len);			
 			errors.push_back(error / alen);
-		}				
-		
-//		Matrix m;				
+		}
 		
 		// cycle by errors		
 		int minErrori = 0;
 		for (int i = 0; i < errors.size(); ++i) 
 		{
+//			qDebug()<<"error #" << i << " : " << errors[i];
 			if(errors[minErrori] > errors[i])
 			{
 				minErrori = i;			
@@ -587,26 +780,371 @@ int MainWindow::checkNewAtom(const Contour &atom, Contours &dict, Matrix &m, int
 		}
 						
 		if(errors[minErrori] < ui->toleranceEdit->text().toFloat())
-		{			
-			qDebug()<<" this is existing atom, set matrix ... ";
+		{
 			// this is existing atom, set matrix
-			m = mxs[floor((double)minErrori/2)];									
+//			m = mxs[floor((double)minErrori/2)];									
+			m = mxs[minErrori];
 			double intpart;
+//			qDebug()<<" this is existing atom, set matrix ... ";// << "minErrori: " << minErrori << " modf(minErrori/2, &intpart) " << modf((double)minErrori/2, &intpart);						
 			
-			if(modf(minErrori/2, &intpart) > 0)
+			if(modf((double)minErrori/2, &intpart) > 0)
 				reverse = 1;
 				
 			return n;
-		}				
+		}
 	}
 	
 	// there is no such atom here
 	return -1;
 }
 		
-void MainWindow::on_OneBtn_clicked(){}
+void MainWindow::on_OneBtn_clicked()
+{
+	len = ui->lenEdit->text().toInt();
+	
+//	bool yeah = true;	
+//	int dY = (!yeah) ? 10 : -3;	
+//	qDebug()<<" dY " << dY;
+	
+	/*
+	if(globalCtr == 0)
+	{
+		Point p0 = Point(0,0);
+		Point p1 = Point(200,100);		
+		cc.nodes.push_back(Node(Node::Move, p0));
+		cc.nodes.push_back(Node(Node::On, p1));		
+		addToDraw(cc, Matrix(1,0,0,1, 300, 200), 0);
+		this->update();
+		
+		globAngle = angle(p0,p1);
+		qDebug()<<" angle(btwp0p1) = " << globAngle;
+		globalCtr = 1;
+	}
+	else if(globalCtr = 1)
+	{
+		clear();
+		Matrix m = Matrix(cos(globAngle), -sin(globAngle), sin(globAngle),cos(globAngle));						
+		
+//		Matrix()
+//		m.slant(-globAngle);
+		cc.transform(m);
+						
+		addToDraw(cc, Matrix(1,0,0,1, 300, 200), 0);
+		this->update();
+		
+	}
+	
+	*/
+	
+	
+	if(globalCtr == 0)
+	{		
+		clear();
+		c1.clear();
+		c2.clear();									
+							
+		c2.nodes.push_back(Node(Node::Move, Point(0, 0)));
+		c2.nodes.push_back(Node(Node::On, Point(0, 0)));
+		c2.nodes.push_back(Node(Node::Curve, Point(0, 32)));
+		c2.nodes.push_back(Node(Node::Curve, Point(-22, 59)));
+		c2.nodes.push_back(Node(Node::On, Point(-56,59)));		
+								
+		c1.nodes.push_back(Node(Node::Move, Point(0,0)));
+//		c2.nodes.push_back(Node(Node::On, Point(0,0)));
+		c1.nodes.push_back(Node(Node::Curve, Point(34, 0)));
+		c1.nodes.push_back(Node(Node::Curve, Point(56, 23)));
+		c1.nodes.push_back(Node(Node::On, Point(56, 55)));			
+		
+//		c1.nodes.push_back(Node(Node::Move, Point(0, 0)));
+//		c1.nodes.push_back(Node(Node::On, Point(20, 20)));		
+//		c1.nodes.push_back(Node(Node::On, Point(100,20)));		
+		
+//		c2.nodes.push_back(Node(Node::Move, Point(0,0)));
+//		c2.nodes.push_back(Node(Node::On, Point(80,0)));		
+//		c2.nodes.push_back(Node(Node::On, Point(100, -20)));			
+		
+		c2.open = true;
+		c1.open = true;		
+		
+		// getting norm representations 						
+//		Contours cs;
+//		getRepres(c1, cs);
+//		c1 = *(cs.begin());
+//		cs.clear();
+//		getRepres(c2, cs);
+//		c2 = *(cs.begin());			
+		
+		clear();
+		addToDraw(c1, Matrix(1,0,0,-1, 310, 200), 0);
+		addToDraw(c2, Matrix(1,0,0,-1, 300, 200), 0);
+		this->update();				
+		
+//		Splines s1, s2;		
+//		s1 = contourToSplines(c1,len, Matrix(), false);
+//		s2 = contourToSplines(c2,len, Matrix(), false);		
+//		double er = compareSplines(s1,s2, len);		
+//		double l2 = s2.size() * len;
+//		double l1 = s1.size() * len;				
+//		double alen = (l2 + l1) / 2;	
+//		qDebug()<<" er " << er << " er / alen " << er / alen << " alen " << alen  ;					
+//		globalCtr = 2;	
+				globalCtr = 1;
+	}
+	else if(globalCtr == 2)
+	{				
+		
+		Contour c1n = c1; 
+		// reverse
+		Nodes::iterator afirst = c1n.nodes.begin();	
+		std::advance(afirst, c1n.nodes.size() - 1);
+		c1n.transform(Matrix(-1,0,0,1, (*afirst).p.x, -(*afirst).p.y));		
+		c1n.reverse();
+		
+		clear();
+		addToDraw(c1n, Matrix(1,0,0,1, 300, 200), 0);
+		addToDraw(c2, Matrix(1,0,0,1, 300, 210), 0);
+		this->update();
+		
+		Splines s1, s2;		
+		s1 = contourToSplines(c1n,len, Matrix(), false);
+		s2 = contourToSplines(c2,len, Matrix(), false);		
+		double er = compareSplines(s1,s2, len);		
+		double l2 = s2.size() * len;
+		double l1 = s1.size() * len;				
+		double alen = (l2 + l1) / 2;	
+		qDebug()<<" er " << er << " er / alen " << er / alen << " alen " << alen  ;									
+		globalCtr = 3;	
+	}
+	else if(globalCtr == 3)
+	{
+		Contour c1n = c2; 
+		// reverse
+		Nodes::iterator afirst = c1n.nodes.begin();
+		std::advance(afirst, c1n.nodes.size() - 1);
+		c1n.transform(Matrix(-1,0,0,1, (*afirst).p.x, -(*afirst).p.y));		
+		c1n.reverse();
+		
+		clear();
+		addToDraw(c1, Matrix(1,0,0,1, 300, 200), 0);
+		addToDraw(c1n, Matrix(1,0,0,1, 300, 210), 0);
+		this->update();
+		
+		Splines s1, s2;		
+		s1 = contourToSplines(c1,len, Matrix(), false);
+		s2 = contourToSplines(c1n,len, Matrix(), false);		
+		double er = compareSplines(s1,s2, len);		
+		double l2 = s2.size() * len;
+		double l1 = s1.size() * len;				
+		double alen = (l2 + l1) / 2;	
+		qDebug()<<" er " << er << " er / alen " << er / alen << " alen " << alen  ;									
+		globalCtr = 3;			
+	}
+}
 
-void MainWindow::on_TwoBtn_clicked(){}
+int MainWindow::getRepres(Contour source, Contours &cs)
+{		
+	Nodes::iterator it = source.nodes.begin();
+	Point p0 = (*it).p;
+	std::advance(it, source.nodes.size() - 1);
+	Point p1 = (*it).p;											 
+	double ang = angle(p0,p1);
+	Matrix m = Matrix(cos(ang), -sin(ang), sin(ang),cos(ang), -p0.x, -p0.y);
+	source.transform(m);			
+	
+	
+	qDebug()<<" source.area() " << source.area();
+	source.open = false;
+	if(source.area() < 0)
+	{
+		
+		qDebug()<<" LESS ";
+		source.transform(Matrix(1,0,0,-1));					
+		source.open = true;
+		
+//		source.reverse();	
+		//		// translate
+		//		Nodes::iterator afirst = tr.nodes.begin();	
+		//		std::advance(afirst, tr.nodes.size() - 1);
+		//		qDebug()<<" last.p " << (*afirst).p.x<<" " << (*afirst).p.y;
+		
+	}
+	
+	cs.push_back(source);
+	
+	return 1;
+}
+
+double MainWindow::angle(Point &p0, Point &p1)
+{	
+	double dy = p1.y - p0.y;
+	double dx = p1.x - p0.x;
+	return std::atan(dy/dx);								
+}
+
+void MainWindow::on_TwoBtn_clicked()
+{	
+	
+	if(globalCtr == 0)
+	{		
+		Rect r1 = c1.boundingBox(false);
+		Rect r2 = c2.boundingBox(false);
+		
+		Node &afirst1 = (*(c1.nodes.begin()));
+		Node &afirst2 = (*(c2.nodes.begin()));
+		
+		int tX = r1.left();
+		int tY = r1.top();			
+//		tX += r1.width();
+//		tY += -r1.height();		
+		tX += afirst1.p.x;
+		tY += -afirst1.p.y;		
+		
+		qDebug()<<" " << r1.width() << " " << r1.height();	
+		Contour c1tr = c1;
+		
+		
+		
+//		c1tr.transform(Matrix(-1,0,0,-1, tX, tY));	
+//		c1tr.transform(Matrix(-1,0,0,1, 0, 0));	
+		c1.transform(Matrix(-1,0,0,1, 0, 0));
+		
+		Node &n10 = (*(c1tr.nodes.begin()));
+		Node &n20 = (*(c2.nodes.begin()));
+						
+		// совмещаем первые узлы контуров для сравнения
+//		Point trnsl  = Point(n20.p.x - n10.p.x, n20.p.y - n10.p.y);														
+//		c1tr.transform(Matrix(1,0,0,1, trnsl.x, trnsl.y));	
+		
+		
+		clear();
+		
+		addToDraw(c1, Matrix(1,0,0,1, 300, 200), 0);
+		addToDraw(c2, Matrix(1,0,0,1, 300, 200), 0);
+		this->update();
+		
+		qDebug()<<" c1 - transformed, c2 - original ";
+		qDebug()<<ctrToString(c1tr).str().c_str() <<"\n" << ctrToString(c2).str().c_str();		
+		
+		Splines s1, s2;		
+		s1 = contourToSplines(c1,20, Matrix(), false);
+		s2 = contourToSplines(c2,20, Matrix(), false);
+		
+		double er = compareSplines(s1,s2, 20);
+		qDebug()<<" er " << er;				
+		globalCtr = 1;
+	}
+	
+	else if(globalCtr == 1)
+	{
+		
+//		Rect r1 = c1.boundingBox(false);
+//		Rect r2 = c2.boundingBox(false);
+		
+//		int tX = r2.left();
+//		int tY = r2.top();			
+//		tX += r2.width();
+//		tY += -r2.height();		
+		
+//		Contour c1tr = c2;
+		
+//		c1tr.transform(Matrix(-1,0,0,-1, tX, tY));	
+//		c1tr.transform(Matrix(-1,0,0,-1, 0, 0));	
+		clear();						
+		
+//		Node &n20 = (*(c1tr.nodes.begin()));
+//		Node &n10 = (*(c1.nodes.begin()));
+						
+		// совмещаем первые узлы контуров для сравнения
+//		Point trnsl  = Point(n10.p.x - n20.p.x, n10.p.y - n20.p.y);														
+//		c1tr.transform(Matrix(1,0,0,1, trnsl.x, trnsl.y));	
+		Nodes::iterator afirst = c2.nodes.begin();	
+		std::advance(afirst, c2.nodes.size() - 1);
+		
+//		dX = (scaleXY[i][0] == -1) ? (*afirst).p.x : -(*afirst).p.x; 				
+//		dY = (scaleXY[i][1] == -1) ? (*afirst).p.y : -(*afirst).p.y;
+		double dX = -(*afirst).p.x; 				
+		double dY =  (*afirst).p.y;
+		
+		c2.transform(Matrix(1,0,0,-1, dX, dY));
+		c2.reverse();
+		
+//		c1.reverse();
+		
+//		Node &n10 = (*(c1.nodes.begin()));
+		
+		addToDraw(c1, Matrix(1,0,0,-1, 300, 200), 0);
+		addToDraw(c2, Matrix(1,0,0,-1, 300, 200), 0);
+		this->update();
+		
+		qDebug()<<" c1 - original, c2 - transformed ";
+		qDebug()<<ctrToString(c1).str().c_str() <<"\n" << ctrToString(c2).str().c_str();		
+		
+		Splines s1, s2;		
+		s1 = contourToSplines(c1,20, Matrix(), false);
+		s2 = contourToSplines(c2,20, Matrix(), false);
+		
+//		double er = compareSplines(s1,s2, 20);
+		
+		double er = compareSplines(s1,s2, len);		
+		double l2 = s2.size() * len;
+		double l1 = s1.size() * len;				
+		double alen = (l2 + l1) / 2;	
+		qDebug()<<" er " << er << " er / alen " << er / alen << " alen " << alen  ;									
+//		qDebug()<<" er " << er;				
+		globalCtr = 2;		
+	}
+	else if(globalCtr == 2)
+	{
+		
+//		Contour c1tr = c1;
+//		Nodes::iterator n1itr = c1.nodes.begin();
+//		n1itr--;
+//		qDebug()<<" lastp " << (*n1itr).p.x <<" " << (*n1itr).p.y;		
+//		c1tr.reverse();
+//		n1itr = c1tr.nodes.end();
+//		n1itr--;
+//		qDebug()<<"reversed lastp " << (*n1itr).p.x <<" " << (*n1itr).p.y;
+		
+		Nodes::iterator afirst = c2.nodes.begin();	
+		std::advance(afirst, c2.nodes.size() - 1);
+		
+//		dX = (scaleXY[i][0] == -1) ? (*afirst).p.x : -(*afirst).p.x; 				
+//		dY = (scaleXY[i][1] == -1) ? (*afirst).p.y : -(*afirst).p.y;
+		double dX = -(*afirst).p.x; 				
+		double dY =  (*afirst).p.y;
+		c2.transform(Matrix(1,0,0,1, dX, dY));	
+																
+				
+
+		//c1tr.transform(Matrix(-1,0,0,-1, 0, 0));	
+		clear();										
+		
+//		c1.transform(Matrix(1,0,0,1, -(*n1itr).p.x,  -(*n1itr).p.y));
+						
+		// совмещаем первые узлы контуров для сравнения
+//		Point trnsl  = Point(n10.p.x - n20.p.x, n10.p.y - n20.p.y);														
+//		c1tr.transform(Matrix(1,0,0,1, trnsl.x, trnsl.y));	
+		
+		addToDraw(c1, Matrix(1,0,0,-1, 310, 200), 0);
+		addToDraw(c2, Matrix(1,0,0,-1, 300, 200), 0);
+		this->update();
+		
+//		qDebug()<<" c1 - reversed, c2 - original ";
+////		qDebug()<<ctrToString(c1).str().c_str() <<"\n" << ctrToString(c1tr).str().c_str();		
+		
+		
+		
+//		Splines s1, s2;		
+//		s1 = contourToSplines(c1,20, Matrix(), false);
+//		s2 = contourToSplines(c2,20, Matrix(), false);
+		
+//		double er = compareSplines(s1,s2, 20);
+//		qDebug()<<" er " << er;				
+		globalCtr = 3;								
+	}
+	
+		
+}
 
 void MainWindow::coutRect(const string &header, const Rect &r)
 {
@@ -626,27 +1164,19 @@ Contour MainWindow::contourToPoligone(Contour contour, int len)
 
 Splines MainWindow::contourToSplines(Contour contour, int len, Matrix m, bool reverse)
 {
-	//   qDebug()<< "len: " << len;
-	//	qDebug()<<" nodes.size " << contour.nodes.size();
    std::list<fg::Curve> curves;
    fg::Integers intg;
-   Splines splines;	 
-	 	 
-//	 contour.transform(m);
+   Splines splines;	 	 	 
+	 
+	 contour.transform(m);	
 	 
 	 if(reverse)
-	 {
-		 //qDebug()<<"contour.reverse()";
+	 {		 
 		 contour.reverse();
+		 // and new transform		 
 	 }
-	 
-//	 if(contour.area() < 0)
-//	 {
-//		 contour.reverse();
-//	 }
-	 
-	 	 contour.transform(m);
-	 	 
+	 	  	 	 
+//	 qDebug()<<" FIRST.P " << (*(contour.nodes.begin())).p.x << " " <<(*(contour.nodes.begin())).p.y;
 	 
    Grapheme::contourToCurves(curves, contour); 
 	 Grapheme::curvesToSplines(curves, splines, intg, len);
@@ -694,6 +1224,13 @@ double MainWindow::compareSplines(const Splines &splines1, const Splines &spline
   // цикл сравнения
   for (uint i = 0; i < splines1.size() || i < splines2.size(); ++i) 
 	{
+		
+//		if(i < splines1.size() && i < splines2.size())
+//		qDebug()<<" [1] " << splines1[i].x << " "<< splines1[i].y 
+//					 << " [2] " << splines2[i].x << " " <<  splines2[i].y 
+//					 << " DELTA.X " << splines1[i].x - splines2[i].x <<  " DELTA.Y " 
+//							<< splines1[i].y - splines2[i].y;
+		
     if(i < splines1.size() && i < splines2.size())
       sumError += sqrt(pow(splines1[i].x - splines2[i].x,2) + pow(splines1[i].y - splines2[i].y,2));
 
@@ -713,6 +1250,7 @@ double MainWindow::compareSplines(const Splines &splines1, const Splines &spline
   }
 
   double S = sumError * len;
+//	qDebug()<<" E = " << S;
 
   return S;
 }
@@ -782,6 +1320,8 @@ void MainWindow::paintEvent(QPaintEvent *e)
 	atomPainter.setPen(QPen(QColor(255, 0, 0), 1, Qt::SolidLine,
 											Qt::FlatCap, Qt::MiterJoin));
 	
+	atomPainter.setRenderHint(QPainter::Antialiasing);		
+	
 	if(ui->drawComparingLabel->isChecked())
 	{
 		atomPainter.drawPath(redPath);
@@ -833,8 +1373,7 @@ void MainWindow::on_atomsList_currentItemChanged(QListWidgetItem *item, QListWid
 	this->update();
 	
   if(item != NULL )
-  {    
-		
+  {    		
 		fg::Contours::iterator current = dict.begin();
 		std::advance (current,item->listWidget()->currentRow());
 		
@@ -850,13 +1389,11 @@ void MainWindow::on_atomsList_currentItemChanged(QListWidgetItem *item, QListWid
     center = fg::Point(pp.x() + ui->canvasRight->geometry().width()/2, ui->canvasRight->geometry().y() + ui->canvasRight->geometry().height()/2);
 		Point glyphC = Point(bbox.left() + bbox.width() / 2, bbox.top() + bbox.height() / 2);
 		translation.x = -(glyphC.x*2.5*global_scale - dCenter.x); 					      	  	  	  	  
-	  int bottom_line = center.y + 100*global_scale;	  	    	  												  
+	  int bottom_line = center.y + 100*global_scale;	  	   
 		
-//		(*it).open = false;
-//		qDebug()<<"---------- area closed: " << (*it).area();
-//		(*it).open = true;
-//		qDebug()<<"---------- area opened: " << (*it).area();		
-    //		contourToDebug((*it));				
+		qDebug()<<" current raw " << ctrToString((*current)).str().c_str();
+		qDebug()<<" comparing raw " << ctrToString((*comparing)).str().c_str();
+				
 		
 		fg::Matrix mtx(2.5*global_scale, 0, 0, -2.5*global_scale, 0, 0);
 		// draw item
@@ -867,7 +1404,7 @@ void MainWindow::on_atomsList_currentItemChanged(QListWidgetItem *item, QListWid
 		
 		// here comparation with control atom 
     if(ui->drawComparingLabel->isChecked())
-		{						
+		{	
 			//			p.addRect(p.boundingRect());							
 			
 			qDebug()<<" compareEdit: " << ui->compareEdit->text().toInt();	
@@ -880,32 +1417,61 @@ void MainWindow::on_atomsList_currentItemChanged(QListWidgetItem *item, QListWid
 			
 			int scaleXY[4][2] = {{1, 1}, {-1,1}, {1,-1}, {-1,-1}};			
 			for (int i = 0; i < 4; ++i) 
-			{
-				int tX = r.left();
-				int tY = r.top();
+			{								
+				int dX = 0;
+				int dY = 0;				
 				
-				if(scaleXY[i][0] == -1)
-				{
-					tX += r.width();										 										 
-				}
-									
-				if(scaleXY[i][1] == -1)
-				{
-					tY += -r.height();
-				}
-																	
-				mxs.push_back(Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], tX, tY));						
-//				representations.push_back(contourToSplines((*it2), len, Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], tX, tY)));
-				representations.push_back(contourToSplines((*comparing), len, Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], tX, tY), 0));
-				representations.push_back(contourToSplines((*comparing), len, Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], tX, tY), 1));
+				Nodes::iterator afirst = (*comparing).nodes.begin();	
+				std::advance(afirst, (*comparing).nodes.size() - 1);
 				
-//				if(i == 2)
+				dX = (scaleXY[i][0] == -1) ? (*afirst).p.x : -(*afirst).p.x; 				
+				dY = (scaleXY[i][1] == -1) ? (*afirst).p.y : -(*afirst).p.y;
+				
+//			qDebug()<<" last.p " << (*afirst).p.x<<" " << (*afirst).p.y;
+				
+//				if(scaleXY[i][0] == -1)
 //				{
-//					Contour cx = (*it2);
-//					cx.reverse();
-//					mxs.push_back(Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], tX, tY));						
-//					representations.push_back(contourToSplines((*it2), len, Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], tX, tY)));										
+//					dX = (*afirst).p.x;				
 //				}
+//				else if(scaleXY[i][0] == 1)
+//				{
+//					dX = -(*afirst).p.x;				
+//				}
+												
+//				if(scaleXY[i][1] == -1)
+//				{
+//					dY = (*afirst).p.y;
+//				}
+//				else if(scaleXY[i][1] == 1)
+//				{
+//					dY = -(*afirst).p.y;
+//				}
+//				mxs.push_back(Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], tX, tY));						
+				mxs.push_back(Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], 0, 0));
+				
+				// трансформируем контур и переворачиваем его если надо
+				// выводим в дебаг и только потом отправляем на создание сплайнов
+				
+//				Contour c = (*comparing);
+//				c.transform(Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], tX, tY));
+//				qDebug()<<" current straight: \n " << ctrToString((*current)).str().c_str();	
+//				qDebug()<<" comparing straight: \n " << ctrToString(c).str().c_str();				
+//				representations.push_back(contourToSplines(c, len, Matrix(), 0));
+//				c.reverse();
+//				qDebug()<<" reversed: \n " << ctrToString(c).str().c_str();				
+//				representations.push_back(contourToSplines(c, len, Matrix(), 1));
+				
+//				representations.push_back(contourToSplines((*comparing), len, Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], tX, tY), 0));
+//				representations.push_back(contourToSplines((*comparing), len, Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], tX, tY), 1));				
+				representations.push_back(contourToSplines((*comparing), len, Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], 0, 0), 0));
+//				qDebug()<<" SIZE " << (*comparing).nodes.size();
+//				Nodes::iterator ni = (*comparing).nodes.end();
+//				ni--;
+//				Point lastp = (*((*comparing).nodes.end()--)).p;
+//				Point lastp = (*ni).p;
+				
+				representations.push_back(contourToSplines((*comparing), len, Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], dX, dY), 1));				
+//				representations.push_back(contourToSplines((*comparing), len, Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], 0, 0), 1));				
 			}
 			
 			if(ui->compareEdit->text().toInt() != item->listWidget()->currentRow())
@@ -932,30 +1498,15 @@ void MainWindow::on_atomsList_currentItemChanged(QListWidgetItem *item, QListWid
 				//				(*it2).transform(mxs[mxs_counter]);										
 				Contour c = (*comparing);
 				c.transform(mxs[floor((double)mxsCounter/2)]);
-//				qDebug()<<" ------------ ";
-//				coutMatrix("m:", mxs[floor((double)mxsCounter/2)]);
-//				double intpart;
-//				qDebug()<<" reversed: " << !(modf((double)mxsCounter/2, &intpart) == 0);// //floor((double)mxsCounter/2);
-				
-//				qDebug()<<" modf(mxsCounter/2, &intpart) " << modf((double)mxsCounter/2, &intpart) << " mxsCounter: " << mxsCounter;
-//				qDebug()<<" modf(mxsCounter/2, &intpart) " << modf(2.3, &intpart) << " mxsCounter/2: " << (double)mxsCounter/2;
-								
-				//				qDebug()<<"    it2   ";
-//				contourToDebug(c);
-//				qDebug()<<"    ----   ";
-//				contourToDebug((*it));								
-//				qDebug()<<"------------------";
-												
-//				qDebug()<<" (*si).size() "<< (*si).size() << " s2.size() " << s2.size();
+
 				double l2 = s2.size() * len;
-				double l1 = (*si).size() * len;
-				
-//				qDebug()<<" l1 " << l1 << " l2 " << l2 ;
-				double alen = (l2 + l1) / 2;
-				
-				double error = compareSplines((*si), s2, len);			//// remove twice calculation!!!!!									
-				errors.push_back(error / alen);						
-//				qDebug()<<" error: " << error / alen << " alen " << alen;
+				double l1 = (*si).size() * len;				
+				double alen = (l2 + l1) / 2;	
+//				qDebug()<<"si.size" << (*si).size() << " s2.size() " << s2.size();
+				double error = compareSplines((*si), s2, len);			
+//				double error2 = compareSplines(s2, (*si), len);
+//				qDebug()<<" error " << error << " error2 " << error2;
+				errors.push_back(error / alen);
 			}
 			
 			
@@ -972,7 +1523,7 @@ void MainWindow::on_atomsList_currentItemChanged(QListWidgetItem *item, QListWid
 			qDebug()<<"error: " << errors[minErrori];
 			coutMatrix("m:", mxs[floor((double)minErrori/2)]);
 			double intpart;
-			qDebug()<<" reversed: " << !(modf((double)minErrori/2, &intpart) == 0);
+			qDebug()<<" reversed: " << !(modf((double)minErrori/2, &intpart) == 0) << " \n";
 		}
 		
 		// here drawing current atom in the glyph canvas
@@ -1003,3 +1554,10 @@ void MainWindow::on_atomsList_currentItemChanged(QListWidgetItem *item, QListWid
     this->update();
   }
 }
+
+
+//void MainWindow::coutSplines(Splines &s1, Splines &s2)
+//{
+	
+//	qDebug()<<" s1";				
+//}

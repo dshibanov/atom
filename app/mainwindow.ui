@@ -456,7 +456,7 @@ border-color: rgb(0, 0, 0);</string>
            </font>
           </property>
           <property name="text">
-           <string>3</string>
+           <string>1</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>

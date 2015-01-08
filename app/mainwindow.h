@@ -33,13 +33,19 @@ public:
 	Matrix m;
 	int reverse;
 	int contourIndex;
+	bool straightLine;
 	
-	Atom(Contour &_contour, Matrix _m, int _reverse = -1, int _contourIndex = 0):
+	Atom(Contour &_contour, Matrix _m, int _reverse = -1, int _contourIndex = 0, bool _straightLine = false):
 		contour(&_contour),		
 	  m(_m)	,
 		reverse(_reverse),
-		contourIndex(_contourIndex)		
-	{	}	
+		contourIndex(_contourIndex), 
+		straightLine(_straightLine)		
+	{	
+	
+//		qDebug()<<"dx dy " << m.dx << " " << m.dy;
+	
+	}	
 	
 	Atom(){}
 	
@@ -99,33 +105,75 @@ public:
 		if(contours.empty())
 			return 0;
 		
+		
+		// anyway we need to remove zeros from constructed contour !!!
+		// it looks we need special rule for remove zeros
+		
 		for (AContours::iterator it = contours.begin(); it != contours.end(); ++it) 
 		{
+			
 			Contour contour;
+			Contour contour2;
+			int n = 0;
+			
 			// getting contour from atoms
-			for (Atoms::iterator it2 = (*it).begin(); it2 != (*it).end(); ++it2)
+			for (Atoms::iterator it2 = (*it).begin(); it2 != (*it).end() && n < 500; ++it2, ++n)
 			{
 				// connecting atoms to contour				
-				Contour atom = (*(*it2).contour);
-				//	qDebug()<<"atom nodes size: " << atom.nodes.size() ;
-				//	qDebug()<<" atom #"<<(*it2).contourIndex;
-				//	qDebug()<<" nodes.size: " << (*it2).contour->nodes.size();
+				std::stringstream ss;
+				Contour atom = (*(*it2).contour);				
 				
-//				qDebug()<<" before: " <<ctrToString(atom).str().c_str();
-				atom.transform((*it2).m);
+												
+				ss<<"#" << n << " aa.contourIndex " << (*it2).contourIndex << " m11: " << (*it2).m.m11 << " m22: " << (*it2).m.m22 << " r: " << (*it2).reverse; 
+				qDebug()<<ss.str().c_str();
+				
+				if(n == 4)
+				{
+					qDebug()<<" **n==4* " << ctrToString(atom).str().c_str();
+				}
 				
 				coutMatrix("m: ", (*it2).m);
 				if((*it2).reverse)
-					atom.reverse();				
-				//	qDebug()<<" after: " <<ctrToString(atom).str().c_str();				
-				//	qDebug()<<"atom nodes size: " << atom.nodes.size();
-								
+				{
+					atom.reverse();									
+				}
+				
+				if(n == 4)
+				{
+//					atom.transform(Matrix(1,0,0,1, -126,0));//(*it2).m.dx -= 126;
+					qDebug()<<" after reverse **n==4* " << ctrToString(atom).str().c_str();
+				}
+				
+//				if(n == 4)				
+//					(*it2).m.dy = 20;
+						
+				atom.transform((*it2).m);
+				
+				if(n == 4)
+				{
+					qDebug()<<" after transform **n==4* " << ctrToString(atom).str().c_str();
+				}
+				
 				for (Nodes::iterator ni = atom.nodes.begin(); ni != atom.nodes.end(); ++ni) 
 				{
-					Node n = (*ni); 
-					contour.addNode(n.kind, n.p, false);					
+					std::stringstream s_result;
+					Node &n = (*ni); 					
+//					qDebug()<<"ni == atom.nodes.begin() && n.kind == Node::Move == " << (ni == atom.nodes.begin() && n.kind == Node::Move);
+					if(contour.empty() || n.kind != Node::Move)
+					{
+						contour.addNode(n.kind, n.p, false);			
+						s_result << "	["<< n.kind << " : (" << n.p.x << ", " << n.p.y << ")];   | ";						
+					}
+					else
+						s_result << "	";
+					
+					contour2.addNode(n.kind, n.p, false);										
+					s_result << "	["<< n.kind << " : (" << n.p.x << ", " << n.p.y << ")]; \n";										
+//					qDebug()<<s_result.str().c_str();
 				}
 			}
+//			qDebug()<<" * " << ctrToString(contour).str().c_str();
+//			contour.open = true;
 			c.push_back(contour);
 		}
 		
@@ -142,7 +190,10 @@ public:
 		std::stringstream s_result;
 		for (Nodes::const_iterator it = contour.nodes.begin(); it != contour.nodes.end(); ++it) 
 		{
-			s_result << " ["<< (*it).kind << " : (" << (*it).p.x << ", " << (*it).p.y << ")];";
+			if((*it).kind == 0)
+				s_result << "		["<< (*it).kind << " : (" << (*it).p.x << ", " << (*it).p.y << ")]; \n";
+			else
+				s_result << " ["<< (*it).kind << " : (" << (*it).p.x << ", " << (*it).p.y << ")]; \n";
 		}
 		
 		s_result<<"\n";		
@@ -231,6 +282,14 @@ private:
 	AGlyphs agdict;// dict of aglyphs
 	int len;
 	
+	Contour c1;
+	Contour c2;
+	Contour cc;
+	int globalCtr;
+	
+	double globAngle;
+	
+	
 	
 	
 	// -------------------------
@@ -253,6 +312,9 @@ private:
 	void MainWindow::coutSplines(const Splines &s);
 	std::stringstream MainWindow:: ctrToString(const Contour &contour);
 	// ---
+	
+	double MainWindow::angle(Point &p0, Point &p1);
+	int MainWindow::getRepres(Contour source, Contours &cs);
 	
 	void paintEvent(QPaintEvent *e);
 	
