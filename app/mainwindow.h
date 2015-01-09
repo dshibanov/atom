@@ -26,6 +26,14 @@ class MainWindow;
 }
 
 
+//class UnpAtom :public Contour
+//{
+	
+	
+	
+//}
+
+
 class Atom 
 {
 public:	
@@ -34,6 +42,7 @@ public:
 	int reverse;
 	int contourIndex;
 	bool straightLine;
+	vector<int> usedIn;
 	
 	Atom(Contour &_contour, Matrix _m, int _reverse = -1, int _contourIndex = 0, bool _straightLine = false):
 		contour(&_contour),		
@@ -299,7 +308,7 @@ private:
 	Contour MainWindow::splinesToContour(Splines splines);
 	Splines MainWindow::contourToSplines(Contour contour, int len, Matrix m = Matrix(1,0,0,1), bool reverse = false);
 	void MainWindow::fillList();
-	void MainWindow::glyphToDraw(fg::Glyph &g);
+	void MainWindow::glyphToDraw(fg::Glyph &g, Point &tr = Point (0,0));
 	void addToDraw(Contour &c, const fg::Point &translation, int index);
 	void addToDraw(fg::Contour &c, const fg::Matrix &m, int index);
 	QPainterPath MainWindow::contourToPath(/*QPainterPath &path, */const fg::Contour &contour, const fg::Matrix &layerMatrix);
@@ -315,6 +324,7 @@ private:
 	
 	double MainWindow::angle(Point &p0, Point &p1);
 	int MainWindow::getRepres(Contour source, Contours &cs);
+	void MainWindow::contoursToDraw(Contours cs, Point tr);
 	
 	void paintEvent(QPaintEvent *e);
 	

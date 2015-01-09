@@ -260,8 +260,7 @@ void MainWindow::addToDraw(fg::Contour &c, const fg::Point &translation, int ind
   paths.append(Path2Draw(index, p));
 	
 	//if(ui->drawNodes->isChecked())
-    drawNodes(p);
-	
+    drawNodes(p);	
 }
 
 void MainWindow::addToDraw(fg::Contour &c, const fg::Matrix &m, int index)
@@ -297,7 +296,7 @@ void MainWindow::drawNodes(QPainterPath p)
 		}	
 }
 
-void MainWindow::glyphToDraw(fg::Glyph &g)
+void MainWindow::glyphToDraw(fg::Glyph &g, Point &tr)
 { 
   //  int SHIFT = 0;
   fg::Point translation;
@@ -313,7 +312,7 @@ void MainWindow::glyphToDraw(fg::Glyph &g)
   int bottom_line = center.y + 900*global_scale;
   Point glyphC = Point(bbox.left() + bbox.width() / 2, bbox.top() + bbox.height() / 2);
     
-  translation.x = -(glyphC.x*2.5*global_scale - dCenter.x);
+  translation.x = -(glyphC.x*2.5*global_scale - dCenter.x) + tr.x;
   //  qDebug()<<"gscale " << global_scale;
   
   fg::Layer* layer; 
@@ -321,8 +320,12 @@ void MainWindow::glyphToDraw(fg::Glyph &g)
   for (fg::Contours::iterator it = layer->shapes.front().contours.begin();it != layer->shapes.front().contours.end(); ++it)
   {
     addToDraw((*it), fg::Point(translation.x,bottom_line + translation.y), 1);
+		
+		
+		
   } 
 }
+
 
 
 //void MainWindow::on_DecomposeBtn_clicked()
@@ -502,18 +505,14 @@ void MainWindow::glyphToDraw(fg::Glyph &g)
 //}
 
 void MainWindow::on_DecomposeBtn_clicked()
-{			
+{				
+	agdict.clear();
+	dict.clear();
 	// getting glyph 
 	Glyph* g;		
 	int glyphIndex = 0;
 	for (fg::Glyphs::const_iterator it = package->font->glyphs.begin(); it != package->font->glyphs.end() && glyphIndex < 20; ++it, ++glyphIndex)
 	{
-//		if((*it)->name.compare(ui->glyphsList->currentItem()->text().toStdString()) == 0)//ui->glyphsList->currentRow() == glyphIndex)
-//			//		if((*it)->name.compare("I") == 0)
-//		{						
-//			g = (*it);
-//			qDebug()<<"name: " << g->name.c_str();									
-//		}
 		fg::Layer* layer = (*it)->bodyLayer();
 		if (layer && layer->countNodes() > 0)
 		{
@@ -545,13 +544,10 @@ void MainWindow::on_DecomposeBtn_clicked()
 						Atom *a;											
 						ac.nodes.push_back((*ni));				
 						lastp = (*std::prev(ac.nodes.end())).p;				
-						Rect r = ac.boundingBox(false);				
+//						Rect r = ac.boundingBox(false);				
 						Point pfirst = (*(ac.nodes.begin())).p;
 						zeroPoints.push_back(pfirst);
-						ac.transform(Matrix(1,0,0,1,-pfirst.x,-pfirst.y));													
-						std::stringstream s1;
-		//				s1<<"#" << samples;								
-//						coutRect(s1.str().c_str(),r);				
+						ac.transform(Matrix(1,0,0,1,-pfirst.x,-pfirst.y));																			
 						int reverse = 0;
 						// check for new item
 						if(dict.empty())
@@ -559,19 +555,15 @@ void MainWindow::on_DecomposeBtn_clicked()
 							ac.open = true;
 							dict.push_back(ac);					
 							Contours::iterator ci = dict.end();
-							ci--;					
-		//					qDebug()<<" acfirst1 xy" << pfirst.x << " " << pfirst.y;
+							//prev(ci);
+							ci--;							
 							a = new Atom((*ci), Matrix(1, 0, 0, 1, pfirst.x, pfirst.y), 0, dict.size()-1);
 						}
 						else 
-						{
-		//					m = Matrix(-1,0,0,-1);
-							int n = checkNewAtom(ac, dict, m, reverse);
-		//					coutMatrix("got m: ", m);
+						{		
+							int n = checkNewAtom(ac, dict, m, reverse);		
 							if(n == -1 && dict.size() < 200000)
-							{
-		//						qDebug()<<" new";
-								// add atom to dict
+							{		
 								ac.open = true;
 								dict.push_back(ac);
 								
@@ -580,19 +572,15 @@ void MainWindow::on_DecomposeBtn_clicked()
 								a = new Atom((*ci), Matrix(1,0,0,1, pfirst.x, pfirst.y), 0, dict.size()-1);
 							}
 							else
-							{
-								//					qDebug()<<" found existing !!! ";
+							{								
 								Contours::iterator ci = dict.begin();
-								std::advance(ci, n);
-								//ci--;						
-								std::stringstream s;
-		//						s<<" found existing #" << n <<" with reverse ==  " << reverse <<  " and with matrix: ";
-		//						coutMatrix(s.str().c_str(), m);
+								std::advance(ci, n);		
 								a = new Atom((*ci), Matrix(m.m11, m.m12, m.m21, m.m22, m.dx + pfirst.x, m.dy + pfirst.y), reverse, n);					
 							}
 						}
 														
-		//				a->info("current ");								
+		//				a->info("current ");	
+						a->usedIn.push_back(glyphIndex);
 						atoms.push_back(*a);
 										
 						// and here start to new atom
@@ -611,21 +599,19 @@ void MainWindow::on_DecomposeBtn_clicked()
 			}
 			
 			agdict.push_back(AGlyph(acontours,g->name.c_str(), g->index));
-			
-			// add atoms to list
-			int atomCount = dict.size()-1;
-	//		glyphIndex = dict.size()-1;
-			for (fg::Contours::const_iterator it = dict.begin(); it != dict.end(); ++it, atomCount++)
-		  {
-		    ui->atomsList->addItem(QString("#%1 ").arg(atomCount));//.arg((*it)->name.c_str()));        
-		  }	
-			
-			
-			
 		}
 		
-		
+	
 	}
+	
+	ui->atomsList->clear();
+	
+	// add atoms to list
+	int atomCount = 0;//dict.size()-1;
+	for (fg::Contours::const_iterator it = dict.begin(); it != dict.end(); ++it, atomCount++)
+  {
+    ui->atomsList->addItem(QString("#%1 ").arg(atomCount));        
+  }			
 			
 
 	// here we need to draw decomposed glyph	
@@ -1202,20 +1188,77 @@ void MainWindow::on_glyphsList_itemClicked(QListWidgetItem *item)
     // находим нужный глиф по имени    
     fg::Point center;
     center = fg::Point(ui->canvasLeft->geometry().x() + ui->canvasLeft->geometry().width()/2, ui->canvasLeft->geometry().y() + ui->canvasLeft->geometry().height()/2);
+		
+		qDebug()<<" name: " << item->text();
+		
+		Point tr;
     
     int glyphIndex = 0;
-    for (fg::Glyphs::const_iterator it = package->font->glyphs.begin(); it != package->font->glyphs.end(); ++it, ++glyphIndex)
+    for (fg::Glyphs::iterator it = package->font->glyphs.begin(); it != package->font->glyphs.end(); ++it, ++glyphIndex)
     {
 			if((*it)->name.compare(item->text().toStdString()) == 0)
 			{
-        glyphToDraw(*(*it));
-				qDebug()<<" name: " << item->text();
+				qDebug()<<"have found original...";
+				Glyph &g = *(*it);												
+				fg::GlyphsR grs;    
+				Rect bbox = g.boundingBox(grs, fg::Matrix(1, 0, 0, -1, 0, 0),false);      				
+				tr = Point((int)bbox.width(), 0);										
+				fg::Layer* layer; 
+			  layer = g.fgData()->findLayer("Body");
+				Contours cs;
+			  for (fg::Contours::iterator it2 = layer->shapes.front().contours.begin();it2 != layer->shapes.front().contours.end(); ++it2)
+				{
+					cs.push_back((*it2));
+				}
+				
+				contoursToDraw(cs, Point(-700,0));
+			}
+    }
+		
+		
+		for (AGlyphs::iterator it = agdict.begin(); it != agdict.end(); ++it)
+    {
+			if((*it).name.compare(item->text().toStdString()) == 0)
+			{				
+				qDebug()<<"have found transformed...";
+				// получаем контура
+				Contours cs;
+				(*it).getContours(cs);				
+				// и отрисовываем их				
+				contoursToDraw(cs, Point(-700 + 20 + (int)tr.x,0));								
 			}
     }
 		
     this->update();
   }
 }
+
+
+void MainWindow::contoursToDraw(Contours cs, Point tr)
+{   
+  fg::Point translation;  
+  QPointF drawCenter = ui->canvasLeft->geometry().center();       
+  Point dCenter = Point(ui->canvasLeft->x() + ui->canvasLeft->size().width()/2, 
+  ui->canvasLeft->y() + ui->canvasLeft->size().height()/2);   
+  
+  fg::Point center;     
+  center = fg::Point(drawCenter.x() - 200 * global_scale, drawCenter.y());
+  int bottom_line = center.y + 900*global_scale;
+	translation.x = dCenter.x + 2.5*global_scale*tr.x;
+	translation.y += bottom_line + tr.y;  
+    
+  for (fg::Contours::iterator it = cs.begin();it != cs.end(); ++it)
+  {		
+		fg::Matrix mtx(2.5*global_scale, 0, 0, -2.5*global_scale, 0, 0);
+	  QPainterPath p = contourToPath((*it), mtx).translated(QPointF(translation.x, translation.y));
+	  globalPath.addPath(p);
+//	  paths.append(Path2Draw(index, p));
+		
+		if(ui->drawNodes->isChecked())
+	    drawNodes(p);
+  } 
+}
+
 
 double MainWindow::compareSplines(const Splines &splines1, const Splines &splines2, int len)
 {
@@ -1372,10 +1415,18 @@ void MainWindow::on_atomsList_currentItemChanged(QListWidgetItem *item, QListWid
 	redPath = QPainterPath();
 	this->update();
 	
-  if(item != NULL )
-  {    		
+	qDebug()<<" dict.size " << dict.size() << " item->listWidget()->currentRow() " << item->listWidget()->currentRow() ;
+  if(item != NULL && dict.size() > item->listWidget()->currentRow())
+  {    				
 		fg::Contours::iterator current = dict.begin();
 		std::advance (current,item->listWidget()->currentRow());
+//		stringstream ss;
+//		for (vector<int>::iterator it = (*current).usedIn.begin(); it != (*current).usedIn.end(); ++it) 
+//		{
+//			ss << (*it) <<", ";
+//		}
+  
+//		qDebug()<<" usedIn: " << ss.str().c_str();
 		
 		// second atom
 		fg::Contours::iterator comparing = dict.begin();
@@ -1555,9 +1606,3 @@ void MainWindow::on_atomsList_currentItemChanged(QListWidgetItem *item, QListWid
   }
 }
 
-
-//void MainWindow::coutSplines(Splines &s1, Splines &s2)
-//{
-	
-//	qDebug()<<" s1";				
-//}
