@@ -273,6 +273,9 @@ border-color: rgb(0, 0, 0);</string>
        <property name="text">
         <string>Compare BBoxes</string>
        </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
       </widget>
      </item>
      <item>
@@ -471,7 +474,7 @@ border-color: rgb(0, 0, 0);</string>
           </font>
          </property>
          <property name="text">
-          <string>0.05</string>
+          <string>1</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -629,7 +632,7 @@ border-color: rgb(0, 0, 0);</string>
           </font>
          </property>
          <property name="text">
-          <string>5</string>
+          <string>3</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>

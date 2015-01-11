@@ -312,8 +312,7 @@ private:
 	
 	double MainWindow::angle(Point &p0, Point &p1);
 	int MainWindow::getRepres(Contour source, Contours &cs);
-	void MainWindow::contoursToDraw(Contours cs, Point tr, QPainterPath &path);
-	
+	void MainWindow::contoursToDraw(Contours cs, Point tr, QPainterPath &path);	
 	void paintEvent(QPaintEvent *e);
 	
 };
