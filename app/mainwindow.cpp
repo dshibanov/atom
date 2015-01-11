@@ -339,7 +339,7 @@ void MainWindow::on_DecomposeBtn_clicked()
 	for (fg::Glyphs::const_iterator it = package->font->glyphs.begin(); it != package->font->glyphs.end() && glyphIndex < ui->toEdit->text().toInt(); ++it, ++glyphIndex)
 	{
 		fg::Layer* layer = (*it)->bodyLayer();
-		if (layer && layer->countNodes() > 0 && ui->fromEdit->text().toInt() <= glyphIndex && (glyphIndex == 8 || glyphIndex == 13))
+		if (layer && layer->countNodes() > 0 && ui->fromEdit->text().toInt() <= glyphIndex /*&& (glyphIndex == 8 || glyphIndex == 13)*/)
 		{
 			g = (*it);
 			qDebug()<<"name: " << g->name.c_str() << " # "<<glyphIndex;									
@@ -434,12 +434,17 @@ void MainWindow::on_DecomposeBtn_clicked()
 		}			
 	}
 	
+	ui->atomsList->blockSignals(true);
 	ui->atomsList->clear();
+	ui->atomsList->blockSignals(false);
 	
 	// add atoms to list
 	int atomCount = 0;//dict.size()-1;
 	for (fg::Contours::const_iterator it = dict.begin(); it != dict.end(); ++it, atomCount++)
   {
+//		ui->atomsList->itemAt(atomCount)
+//				ui->atomsList->rem
+				
     ui->atomsList->addItem(QString("#%1 ").arg(atomCount));        
   }
 
@@ -841,7 +846,19 @@ double MainWindow::angle(Point &p0, Point &p1)
 void MainWindow::on_TwoBtn_clicked()
 {	
 	
-	if(globalCtr == 0)
+//	item->listWidget()->currentRow();
+//	ui->atomsList->blockSignals(true);	
+	
+//	ui->atomsList->
+	
+	ui->atomsList->blockSignals(true);
+	
+	qDebug()<<" ui->atomsList->signalsBlocked() " << ui->atomsList->signalsBlocked();
+	ui->atomsList->clear();
+	
+
+	
+	if(globalCtr == 10)
 	{		
 		Rect r1 = c1.boundingBox(false);
 		Rect r2 = c2.boundingBox(false);
@@ -1275,8 +1292,8 @@ void MainWindow::on_atomsList_currentItemChanged(QListWidgetItem *item, QListWid
 	globalAtoms = QPainterPath();
 	redPath = QPainterPath();
 	this->update();
-	
-	qDebug()<<" dict.size " << dict.size() << " item->listWidget()->currentRow() " << item->listWidget()->currentRow() ;
+			
+	qDebug()<<" dict.size " << dict.size() <<  " item->listWidget()->currentRow() " << item->listWidget()->currentRow();
   if(item != NULL && dict.size() > item->listWidget()->currentRow())
   {    				
 		fg::Contours::iterator current = dict.begin();
