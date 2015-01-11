@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>953</width>
-    <height>700</height>
+    <width>1170</width>
+    <height>635</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -48,7 +48,7 @@
      <rect>
       <x>20</x>
       <y>10</y>
-      <width>911</width>
+      <width>1121</width>
       <height>16</height>
      </rect>
     </property>
@@ -73,7 +73,7 @@ border-color: rgb(0, 0, 0);</string>
       <x>690</x>
       <y>40</y>
       <width>241</width>
-      <height>511</height>
+      <height>521</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
@@ -202,6 +202,285 @@ border-color: rgb(0, 0, 0);</string>
       </layout>
      </item>
      <item>
+      <widget class="QWidget" name="canvasRight" native="true">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>190</height>
+        </size>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">border-color: rgb(0, 0, 0);
+</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="verticalLayoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>950</x>
+      <y>40</y>
+      <width>201</width>
+      <height>521</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <item>
+      <widget class="QCheckBox" name="ShowSampleCheckBox">
+       <property name="font">
+        <font>
+         <family>Arial Black</family>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Show atom in glyph</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="drawNodes">
+       <property name="font">
+        <font>
+         <family>Arial Black</family>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Draw nodes</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="compareBBox">
+       <property name="font">
+        <font>
+         <family>Arial Black</family>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Compare BBoxes</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="drawComparingLabel">
+       <property name="font">
+        <font>
+         <family>Arial Black</family>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="text">
+        <string>Draw comparing atom</string>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="IgnoreStraight">
+       <property name="font">
+        <font>
+         <family>Arial Black</family>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="text">
+        <string>Ignore straight lines</string>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <item alignment="Qt::AlignLeft">
+        <widget class="QLabel" name="label_5">
+         <property name="font">
+          <font>
+           <family>Arial Black</family>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="layoutDirection">
+          <enum>Qt::LeftToRight</enum>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">border-color: rgb(0, 0, 0);
+</string>
+         </property>
+         <property name="text">
+          <string>Length</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="lenEdit">
+         <property name="minimumSize">
+          <size>
+           <width>50</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>40</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial Black</family>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>20</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_5">
+       <item alignment="Qt::AlignLeft">
+        <widget class="QLabel" name="label_3">
+         <property name="font">
+          <font>
+           <family>Arial Black</family>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">border-color: rgb(0, 0, 0);
+</string>
+         </property>
+         <property name="text">
+          <string>Tolerance</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="toleranceEdit">
+         <property name="minimumSize">
+          <size>
+           <width>50</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>40</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial Black</family>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>0.05</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_8">
+       <item alignment="Qt::AlignLeft">
+        <widget class="QLabel" name="labelBBox">
+         <property name="font">
+          <font>
+           <family>Arial Black</family>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">border-color: rgb(0, 0, 0);
+</string>
+         </property>
+         <property name="text">
+          <string>BBox tolerance</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="toleranceEditBBox">
+         <property name="minimumSize">
+          <size>
+           <width>50</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>40</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial Black</family>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>0.05</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
       <layout class="QHBoxLayout" name="horizontalLayout_7">
        <item alignment="Qt::AlignLeft">
         <widget class="QLabel" name="compareWithLabel">
@@ -217,7 +496,7 @@ border-color: rgb(0, 0, 0);</string>
 </string>
          </property>
          <property name="text">
-          <string>compare with #</string>
+          <string>Compare with #</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -256,26 +535,9 @@ border-color: rgb(0, 0, 0);</string>
       </layout>
      </item>
      <item>
-      <widget class="QWidget" name="canvasRight" native="true">
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>190</height>
-        </size>
-       </property>
-       <property name="autoFillBackground">
-        <bool>false</bool>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">border-color: rgb(0, 0, 0);
-</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_8">
-       <item alignment="Qt::AlignLeft">
-        <widget class="QCheckBox" name="drawComparingLabel">
+      <layout class="QHBoxLayout" name="horizontalLayout_6">
+       <item>
+        <widget class="QLabel" name="labelFrom">
          <property name="font">
           <font>
            <family>Arial Black</family>
@@ -283,202 +545,98 @@ border-color: rgb(0, 0, 0);</string>
            <bold>true</bold>
           </font>
          </property>
-         <property name="layoutDirection">
-          <enum>Qt::LeftToRight</enum>
+         <property name="styleSheet">
+          <string notr="true">border-color: rgb(0, 0, 0);
+</string>
          </property>
          <property name="text">
-          <string>draw comparing atom</string>
+          <string>From</string>
          </property>
-         <property name="checked">
-          <bool>false</bool>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
          </property>
         </widget>
        </item>
        <item>
-        <spacer name="horizontalSpacer_8">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Expanding</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
+        <widget class="QLineEdit" name="fromEdit">
+         <property name="minimumSize">
           <size>
-           <width>20</width>
-           <height>20</height>
+           <width>50</width>
+           <height>0</height>
           </size>
          </property>
-        </spacer>
+         <property name="maximumSize">
+          <size>
+           <width>40</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial Black</family>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>2</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="labelTo">
+         <property name="font">
+          <font>
+           <family>Arial Black</family>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">border-color: rgb(0, 0, 0);
+</string>
+         </property>
+         <property name="text">
+          <string>To</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="toEdit">
+         <property name="minimumSize">
+          <size>
+           <width>50</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>40</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial Black</family>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>5</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
        </item>
       </layout>
-     </item>
-    </layout>
-   </widget>
-   <widget class="QWidget" name="horizontalLayoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>580</y>
-      <width>911</width>
-      <height>48</height>
-     </rect>
-    </property>
-    <layout class="QHBoxLayout" name="horizontalLayout_4">
-     <item>
-      <widget class="QWidget" name="widget" native="true">
-       <property name="styleSheet">
-        <string notr="true"/>
-       </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_5">
-        <property name="sizeConstraint">
-         <enum>QLayout::SetMaximumSize</enum>
-        </property>
-        <item>
-         <widget class="QCheckBox" name="ShowSampleCheckBox">
-          <property name="font">
-           <font>
-            <family>Arial Black</family>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Show Particles</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="drawNodes">
-          <property name="font">
-           <font>
-            <family>Arial Black</family>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Draw nodes</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_3">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QLabel" name="label_5">
-          <property name="font">
-           <font>
-            <family>Arial Black</family>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">border-color: rgb(0, 0, 0);
-</string>
-          </property>
-          <property name="text">
-           <string>length</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="lenEdit">
-          <property name="minimumSize">
-           <size>
-            <width>50</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>40</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="font">
-           <font>
-            <family>Arial Black</family>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>20</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <layout class="QVBoxLayout" name="verticalLayout_4"/>
-        </item>
-        <item>
-         <widget class="QLabel" name="label_3">
-          <property name="font">
-           <font>
-            <family>Arial Black</family>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">border-color: rgb(0, 0, 0);
-</string>
-          </property>
-          <property name="text">
-           <string>tolerance</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="toleranceEdit">
-          <property name="minimumSize">
-           <size>
-            <width>50</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>40</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="font">
-           <font>
-            <family>Arial Black</family>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>1</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
      </item>
      <item>
       <widget class="QPushButton" name="DecomposeBtn">
@@ -548,23 +706,44 @@ border-color: rgb(0, 0, 0);</string>
    <widget class="Line" name="line">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>560</y>
-      <width>911</width>
-      <height>20</height>
+      <x>930</x>
+      <y>40</y>
+      <width>20</width>
+      <height>521</height>
      </rect>
     </property>
     <property name="orientation">
-     <enum>Qt::Horizontal</enum>
+     <enum>Qt::Vertical</enum>
     </property>
    </widget>
+   <widget class="Line" name="line_2">
+    <property name="geometry">
+     <rect>
+      <x>659</x>
+      <y>40</y>
+      <width>31</width>
+      <height>521</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Vertical</enum>
+    </property>
+   </widget>
+   <zorder>canvasLeft</zorder>
+   <zorder>fontPath</zorder>
+   <zorder>layoutWidget</zorder>
+   <zorder>verticalLayoutWidget</zorder>
+   <zorder>atomsList</zorder>
+   <zorder></zorder>
+   <zorder>line</zorder>
+   <zorder>line_2</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>953</width>
+     <width>1170</width>
      <height>26</height>
     </rect>
    </property>

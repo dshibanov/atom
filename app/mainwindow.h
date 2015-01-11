@@ -109,12 +109,11 @@ public:
 		
 	}
 	
-	int getContours(Contours &c)
+	int getContours(Contours &c, Contour *useOnly = NULL)
 	{
 		if(contours.empty())
 			return 0;
-		
-		
+				
 		// anyway we need to remove zeros from constructed contour !!!
 		// it looks we need special rule for remove zeros
 		
@@ -132,53 +131,41 @@ public:
 				std::stringstream ss;
 				Contour atom = (*(*it2).contour);				
 				
-												
-				ss<<"#" << n << " aa.contourIndex " << (*it2).contourIndex << " m11: " << (*it2).m.m11 << " m22: " << (*it2).m.m22 << " r: " << (*it2).reverse; 
-				qDebug()<<ss.str().c_str();
-				
-				if(n == 4)
-				{
-					qDebug()<<" **n==4* " << ctrToString(atom).str().c_str();
-				}
-				
-				coutMatrix("m: ", (*it2).m);
+//				ss<<"#" << n << " aa.contourIndex " << (*it2).contourIndex << " m11: " << (*it2).m.m11 << " m22: " << (*it2).m.m22 << " r: " << (*it2).reverse; 
+//				qDebug()<<ss.str().c_str();
+											
 				if((*it2).reverse)
 				{
 					atom.reverse();									
 				}
 				
-				if(n == 4)
-				{
-//					atom.transform(Matrix(1,0,0,1, -126,0));//(*it2).m.dx -= 126;
-					qDebug()<<" after reverse **n==4* " << ctrToString(atom).str().c_str();
-				}
-				
-//				if(n == 4)				
-//					(*it2).m.dy = 20;
 						
 				atom.transform((*it2).m);
-				
-				if(n == 4)
-				{
-					qDebug()<<" after transform **n==4* " << ctrToString(atom).str().c_str();
-				}
+							
 				
 				for (Nodes::iterator ni = atom.nodes.begin(); ni != atom.nodes.end(); ++ni) 
 				{
 					std::stringstream s_result;
 					Node &n = (*ni); 					
-//					qDebug()<<"ni == atom.nodes.begin() && n.kind == Node::Move == " << (ni == atom.nodes.begin() && n.kind == Node::Move);
-					if(contour.empty() || n.kind != Node::Move)
+					if(useOnly == NULL)
 					{
-						contour.addNode(n.kind, n.p, false);			
-						s_result << "	["<< n.kind << " : (" << n.p.x << ", " << n.p.y << ")];   | ";						
+						if(contour.empty() || n.kind != Node::Move)
+						{
+							contour.addNode(n.kind, n.p, false);			
+							s_result << "	["<< n.kind << " : (" << n.p.x << ", " << n.p.y << ")];   | ";						
+						}
+						else
+							s_result << "	";
+						
+						contour2.addNode(n.kind, n.p, false);										
+						//						s_result << "	["<< n.kind << " : (" << n.p.x << ", " << n.p.y << ")]; \n";										
+						//					qDebug()<<s_result.str().c_str();												
 					}
-					else
-						s_result << "	";
-					
-					contour2.addNode(n.kind, n.p, false);										
-					s_result << "	["<< n.kind << " : (" << n.p.x << ", " << n.p.y << ")]; \n";										
-//					qDebug()<<s_result.str().c_str();
+					else if((*it2).contour == useOnly)
+					{						
+						contour.addNode(n.kind, n.p, false);															
+					}
+						
 				}
 			}
 //			qDebug()<<" * " << ctrToString(contour).str().c_str();
@@ -225,6 +212,7 @@ public:
 };
 
 typedef std::vector<ContourGlyph> ContourGlyphs;
+typedef vector<int> Ints;
 
 struct Path2Draw
 {
@@ -290,17 +278,16 @@ private:
 	Contours dict;// dict of atoms
 	AGlyphs agdict;// dict of aglyphs
 	int len;
+	vector<Ints> usedIn;
+	AGlyph *drawedGlyphIndex;
 	
+		
 	Contour c1;
 	Contour c2;
 	Contour cc;
 	int globalCtr;
-	
 	double globAngle;
-	
-	
-	
-	
+				
 	// -------------------------
 	void MainWindow::clear();
 	int MainWindow::readFontFile(QString path, QString outPath);
@@ -320,11 +307,12 @@ private:
 	void MainWindow::coutMatrix(const string &header, const Matrix &m);
 	void MainWindow::coutSplines(const Splines &s);
 	std::stringstream MainWindow:: ctrToString(const Contour &contour);
+	double MainWindow::edist(const Point &p1, const Point &p2);
 	// ---
 	
 	double MainWindow::angle(Point &p0, Point &p1);
 	int MainWindow::getRepres(Contour source, Contours &cs);
-	void MainWindow::contoursToDraw(Contours cs, Point tr);
+	void MainWindow::contoursToDraw(Contours cs, Point tr, QPainterPath &path);
 	
 	void paintEvent(QPaintEvent *e);
 	
