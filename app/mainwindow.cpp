@@ -326,7 +326,7 @@ void MainWindow::glyphToDraw(fg::Glyph &g, Point &tr)
   } 
 }
 
-// *********************************
+
 
 void MainWindow::on_DecomposeBtn_clicked()
 {				
@@ -369,6 +369,7 @@ void MainWindow::on_DecomposeBtn_clicked()
 						Atom *a;											
 						ac.nodes.push_back((*ni));				
 						lastp = (*std::prev(ac.nodes.end())).p;				
+//						Rect r = ac.boundingBox(false);				
 						Point pfirst = (*(ac.nodes.begin())).p;
 						zeroPoints.push_back(pfirst);
 						ac.transform(Matrix(1,0,0,1,-pfirst.x,-pfirst.y));																			
@@ -409,7 +410,8 @@ void MainWindow::on_DecomposeBtn_clicked()
 								usedIn[n].push_back(glyphIndex);
 							}
 						}
-																
+														
+		//				a->info("current ");	
 						a->usedIn.push_back(glyphIndex);
 						atoms.push_back(*a);
 										
@@ -432,19 +434,23 @@ void MainWindow::on_DecomposeBtn_clicked()
 		}			
 	}
 	
+	ui->atomsList->blockSignals(true);
 	ui->atomsList->clear();
+	ui->atomsList->blockSignals(false);
 	
 	// add atoms to list
 	int atomCount = 0;//dict.size()-1;
 	for (fg::Contours::const_iterator it = dict.begin(); it != dict.end(); ++it, atomCount++)
   {
+//		ui->atomsList->itemAt(atomCount)
+//				ui->atomsList->rem
+				
     ui->atomsList->addItem(QString("#%1 ").arg(atomCount));        
   }
 
 	qDebug()<<" time: " << (double)(clock() - tStart)/CLOCKS_PER_SEC;	
 }
 
-//  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 void MainWindow::coutMatrix(const string &header, const Matrix &m)
 {
 	qDebug()<<header.c_str() << m.m11<< " "<< m.m12<< " "<< m.m21<< " "<< m.m22<< " "<< m.dx<< " " << m.dy; 			
@@ -487,107 +493,81 @@ int MainWindow::checkNewAtom(const Contour &atom, Contours &dict, Matrix &m, int
 	Splines s2 = contourToSplines(atom, len);
 	double l2 = (s2.size()-2) * len + + sqrt(pow((*prev(prev(s2.end()))).x - (*prev(s2.end())).x, 2) + 
 																					 pow((*prev(prev(s2.end()))).y - (*prev(s2.end())).y, 2));	;
+	Rect &r2 = atom.boundingBox(false);
+	Point p2 = Point(abs(r2.left() - r2.right()), abs(r2.bottom() - r2.top()));		
 	
-	Node lastNode2 = *prev(atom.nodes.end());	
-	Point v2 = lastNode2.p;
-			
+	
+//	Node &afirst = (*(atom.nodes.begin()));	
+//	coutRect("atom rect: ", atom.boundingBox(false));
+	
 	int n = 0;
 	for (Contours::iterator it = dict.begin(); it != dict.end(); ++it, ++n)
 	{		
 		errors.clear();
 		mxs.clear();
 		list<Splines> representations;		
-		double l1;
-		bool l1Calculated = false;
 		
-		for (int i = 0; i < 4; ++i)
-		{
-			Contour &c = (*it);
-			int dX = 0;
-			int dY = 0;							
-			Node lastNode = *prev(c.nodes.end());										
-			dX = (scaleXY[i][0] == -1) ? lastNode.p.x : -lastNode.p.x; 				
-			dY = (scaleXY[i][1] == -1) ? lastNode.p.y : -lastNode.p.y;			
-											
-			mxs.push_back(Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], 0, 0));								
-				
-			// reverse == false
-			if(ui->compareBBox->isChecked())
-			{											
-				// reverse = false
-				Point v1 = lastNode.p;
-				v1.transform(Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], 0, 0));	
-				double bboxError = 2*edist(v1, Point()) / (edist(v1, Point()) + edist(v2, Point()));
-				qDebug()<<" reverse false, bboxError "<< bboxError;
-				if(bboxError < ui->toleranceEditBBox->text().toDouble())
-				{
-					// тогда считаем сплайны и ошибку
-					Splines s1 = contourToSplines(c, len, Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], 0, 0), 0);
-					double l1 = (s1.size()-2) * len  + sqrt(pow((*prev(prev(s1.end()))).x - (*prev(s1.end())).x, 2) + pow((*prev(prev(s1.end()))).y - (*prev(s1.end())).y, 2));	
-					double alen = (l2 + l1) / 2;								
-					double error = compareSplines(s1, s2, len);									
-					errors.push_back(error/ alen);
-				}
-				else 
-				{						
-					errors.push_back(ui->toleranceEdit->text().toFloat() + 1);						
-				}
-				
-				//------------ reverse = true
-				v1 = (*c.nodes.begin()).p;				
-				v1.transform(Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], dX, dY));	
-				bboxError = 2*edist(v1, Point()) / (edist(v1, Point()) + edist(v2, Point()));
-				qDebug()<<" reverse true,  bboxError "<< bboxError;
-				if(bboxError < ui->toleranceEditBBox->text().toDouble())
-				{
-					// тогда считаем сплайны и ошибку
-					Splines s1 = contourToSplines(c, len, Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], dX, dY), 1);
-					double l1 = (s1.size()-2) * len  + sqrt(pow((*prev(prev(s1.end()))).x - (*prev(s1.end())).x, 2) + pow((*prev(prev(s1.end()))).y - (*prev(s1.end())).y, 2));	
-					double alen = (l2 + l1) / 2;								
-					double error = compareSplines(s1, s2, len);									
-					errors.push_back(error/ alen);
-				}
-				else 
-				{						
-					errors.push_back(ui->toleranceEdit->text().toFloat() + 1);						
-				}												
-			}
-			else
-			{				
-				// reverse = false
-				Splines s1 = contourToSplines(c, len, Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], 0, 0), 0);
-				double l1 = (s1.size()-2) * len  + sqrt(pow((*prev(prev(s1.end()))).x - (*prev(s1.end())).x, 2) + pow((*prev(prev(s1.end()))).y - (*prev(s1.end())).y, 2));	
-				double alen = (l2 + l1) / 2;								
-				double error = compareSplines(s1, s2, len);									
-				errors.push_back(error/ alen);			
-				
-				// reverse = true
-				s1 = contourToSplines(c, len, Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], dX, dY), 1);
-				error = compareSplines(s1, s2, len);									
-				errors.push_back(error/ alen);
-			}		
+		double bboxError = 0;
+		if(ui->compareBBox->isChecked())
+		{			
+			Rect &r1 = (*it).boundingBox(false);	
+			Point p1 = Point(abs(r1.left() - r1.right()), abs(r1.bottom() - r1.top()));		
+			bboxError = 2*edist(p1,p2) / (edist(p1) + edist(p2));						
+//			qDebug()<<" bboxError: " << bboxError;
 		}
-			
-		int minErrori = 0;
-		for (int i = 0; i < errors.size(); ++i) 
-		{
-			qDebug()<<"error #" << i << " : " << errors[i];
-			if(errors[minErrori] > errors[i])// && errors[i] != -1)
+		
+		
+		
+		if(bboxError < ui->toleranceEditBBox->text().toFloat())
+		{			
+			for (int i = 0; i < 4; ++i)
 			{
-				minErrori = i;			
+				int dX = 0;
+				int dY = 0;							
+				Nodes::iterator afirst = (*it).nodes.begin();	
+				std::advance(afirst, (*it).nodes.size() - 1);			
+				dX = (scaleXY[i][0] == -1) ? (*afirst).p.x : -(*afirst).p.x; 				
+				dY = (scaleXY[i][1] == -1) ? (*afirst).p.y : -(*afirst).p.y;			
+				mxs.push_back(Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], 0, 0));
+				mxs.push_back(Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], dX, dY));
+				representations.push_back(contourToSplines((*it), len, Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], 0, 0), 0));
+				representations.push_back(contourToSplines((*it), len, Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], dX, dY), 1));										
 			}
-		}
-						
-		if(errors[minErrori] < ui->toleranceEdit->text().toFloat())
-		{					
-			m = mxs[minErrori];
-			double intpart;			
-			if(modf((double)minErrori/2, &intpart) > 0)
-				reverse = 1;				
-			return n;
+			
+			int mxsCounter = 0;		
+			for (list<Splines>::iterator si = representations.begin(); si != representations.end(); ++si, ++mxsCounter) 
+			{			
+				double l1 = ((*si).size()-2) * len  + sqrt(pow((*prev(prev((*si).end()))).x - (*prev((*si).end())).x, 2) + 
+																									 pow((*prev(prev((*si).end()))).y - (*prev((*si).end())).y, 2));	
+				double alen = (l2 + l1) / 2;											
+				double error = compareSplines((*si), s2, len);			
+				errors.push_back(error / alen);
+			}
+			
+			// cycle by errors		
+			int minErrori = 0;
+			for (int i = 0; i < errors.size(); ++i) 
+			{
+				//			qDebug()<<"error #" << i << " : " << errors[i];
+				if(errors[minErrori] > errors[i])
+				{
+					minErrori = i;			
+				}
+			}
+							
+			if(errors[minErrori] < ui->toleranceEdit->text().toFloat())
+			{
+				m = mxs[minErrori];
+				double intpart;			
+				if(modf((double)minErrori/2, &intpart) > 0)
+					reverse = 1;
+					
+				return n;
+			}
 		}
 	}
-		
+	
+	// there is no such atom here
 	return -1;
 }
 		
@@ -864,7 +844,19 @@ double MainWindow::angle(Point &p0, Point &p1)
 void MainWindow::on_TwoBtn_clicked()
 {	
 	
-	if(globalCtr == 0)
+//	item->listWidget()->currentRow();
+//	ui->atomsList->blockSignals(true);	
+	
+//	ui->atomsList->
+	
+	ui->atomsList->blockSignals(true);
+	
+	qDebug()<<" ui->atomsList->signalsBlocked() " << ui->atomsList->signalsBlocked();
+	ui->atomsList->clear();
+	
+
+	
+	if(globalCtr == 10)
 	{		
 		Rect r1 = c1.boundingBox(false);
 		Rect r2 = c2.boundingBox(false);
@@ -1263,6 +1255,7 @@ void MainWindow::on_atomsList_itemChanged(QListWidgetItem *item)
 //    on_atomsList_itemClicked(item);
 }
 
+//void MainWindow::draw
 
 void MainWindow::on_atomsList_itemClicked(QListWidgetItem *item)
 {
@@ -1279,6 +1272,16 @@ std::stringstream MainWindow:: ctrToString(const Contour &contour)
  return	s_result;
 }
 
+//std::stringstream MainWindow:: atomsToString(const Contour &contour)
+//{	
+//	std::stringstream s_result;
+//	for (Nodes::const_iterator it = contour.nodes.begin(); it != contour.nodes.end(); ++it) 
+//	{
+//		s_result << " ["<< (*it).kind << " : (" << (*it).p.x << ", " << (*it).p.y << ")]; \n";
+//	}
+	
+// return	s_result;
+//}
 
 void MainWindow::on_atomsList_currentItemChanged(QListWidgetItem *item, QListWidgetItem *previous)
 {		
@@ -1287,8 +1290,8 @@ void MainWindow::on_atomsList_currentItemChanged(QListWidgetItem *item, QListWid
 	globalAtoms = QPainterPath();
 	redPath = QPainterPath();
 	this->update();
-	
-	qDebug()<<" dict.size " << dict.size() << " item->listWidget()->currentRow() " << item->listWidget()->currentRow() ;
+			
+	qDebug()<<" dict.size " << dict.size() <<  " item->listWidget()->currentRow() " << item->listWidget()->currentRow();
   if(item != NULL && dict.size() > item->listWidget()->currentRow())
   {    				
 		fg::Contours::iterator current = dict.begin();
@@ -1489,12 +1492,11 @@ void MainWindow::on_atomsList_currentItemChanged(QListWidgetItem *item, QListWid
 //			qDebug()<<"$$ " << ctrToString((*it2)).str().c_str();			
 //		}
 		
-
     this->update();
   }
 }
 
 double MainWindow::edist(const Point &p1, const Point &p2)
-{	
+{
 	return sqrt(pow(p1.x - p2.x,2) + pow(p1.y - p2.y,2));
 }

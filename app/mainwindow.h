@@ -307,7 +307,7 @@ private:
 	void MainWindow::coutMatrix(const string &header, const Matrix &m);
 	void MainWindow::coutSplines(const Splines &s);
 	std::stringstream MainWindow:: ctrToString(const Contour &contour);
-	double MainWindow::edist(const Point &p1, const Point &p2);
+	double MainWindow::edist(const Point &p1, const Point &p2 = Point(0,0));
 	// ---
 	
 	double MainWindow::angle(Point &p0, Point &p1);
