@@ -493,6 +493,8 @@ int MainWindow::checkNewAtom(const Contour &atom, Contours &dict, Matrix &m, int
 	Splines s2 = contourToSplines(atom, len);
 	double l2 = (s2.size()-2) * len + + sqrt(pow((*prev(prev(s2.end()))).x - (*prev(s2.end())).x, 2) + 
 																					 pow((*prev(prev(s2.end()))).y - (*prev(s2.end())).y, 2));	;
+	Rect &r2 = atom.boundingBox(false);
+	Point p2 = Point(abs(r2.left() - r2.right()), abs(r2.bottom() - r2.top()));		
 	
 	
 //	Node &afirst = (*(atom.nodes.begin()));	
@@ -505,67 +507,63 @@ int MainWindow::checkNewAtom(const Contour &atom, Contours &dict, Matrix &m, int
 		mxs.clear();
 		list<Splines> representations;		
 		
-		for (int i = 0; i < 4; ++i)
-		{
-			int dX = 0;
-			int dY = 0;							
-			Nodes::iterator afirst = (*it).nodes.begin();	
-			std::advance(afirst, (*it).nodes.size() - 1);			
-			dX = (scaleXY[i][0] == -1) ? (*afirst).p.x : -(*afirst).p.x; 				
-			dY = (scaleXY[i][1] == -1) ? (*afirst).p.y : -(*afirst).p.y;			
-			mxs.push_back(Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], 0, 0));
-			mxs.push_back(Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], dX, dY));
-			representations.push_back(contourToSplines((*it), len, Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], 0, 0), 0));
-			representations.push_back(contourToSplines((*it), len, Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], dX, dY), 1));				
-			
-			
-		}
-				
-		int mxsCounter = 0;		
-		for (list<Splines>::iterator si = representations.begin(); si != representations.end(); ++si, ++mxsCounter) 
+		double bboxError = 0;
+		if(ui->compareBBox->isChecked())
 		{			
-//			Contour c = (*it);			
-//			c.transform(mxs[floor((double)mxsCounter/2)]);
-
-			double l1 = ((*si).size()-2) * len  + sqrt(pow((*prev(prev((*si).end()))).x - (*prev((*si).end())).x, 2) + 
-																								 pow((*prev(prev((*si).end()))).y - (*prev((*si).end())).y, 2));	
-			double alen = (l2 + l1) / 2;		
-//			double bboxError;
-//			if(ui->compareBBox->isChecked())
-//			{
-//				bboxError = 2*edist() / (edist() + edist());
-//				if(bboxError < )
-//			}
-			
-			
-			
-			double error = compareSplines((*si), s2, len);			
-			errors.push_back(error / alen);
+			Rect &r1 = (*it).boundingBox(false);	
+			Point p1 = Point(abs(r1.left() - r1.right()), abs(r1.bottom() - r1.top()));		
+			bboxError = 2*edist(p1,p2) / (edist(p1) + edist(p2));						
+//			qDebug()<<" bboxError: " << bboxError;
 		}
 		
-		// cycle by errors		
-		int minErrori = 0;
-		for (int i = 0; i < errors.size(); ++i) 
-		{
-//			qDebug()<<"error #" << i << " : " << errors[i];
-			if(errors[minErrori] > errors[i])
+		
+		
+		if(bboxError < ui->toleranceEditBBox->text().toFloat())
+		{			
+			for (int i = 0; i < 4; ++i)
 			{
-				minErrori = i;			
+				int dX = 0;
+				int dY = 0;							
+				Nodes::iterator afirst = (*it).nodes.begin();	
+				std::advance(afirst, (*it).nodes.size() - 1);			
+				dX = (scaleXY[i][0] == -1) ? (*afirst).p.x : -(*afirst).p.x; 				
+				dY = (scaleXY[i][1] == -1) ? (*afirst).p.y : -(*afirst).p.y;			
+				mxs.push_back(Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], 0, 0));
+				mxs.push_back(Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], dX, dY));
+				representations.push_back(contourToSplines((*it), len, Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], 0, 0), 0));
+				representations.push_back(contourToSplines((*it), len, Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], dX, dY), 1));										
 			}
-		}
-						
-		if(errors[minErrori] < ui->toleranceEdit->text().toFloat())
-		{
-			// this is existing atom, set matrix
-//			m = mxs[floor((double)minErrori/2)];									
-			m = mxs[minErrori];
-			double intpart;
-//			qDebug()<<" this is existing atom, set matrix ... ";// << "minErrori: " << minErrori << " modf(minErrori/2, &intpart) " << modf((double)minErrori/2, &intpart);						
 			
-			if(modf((double)minErrori/2, &intpart) > 0)
-				reverse = 1;
-				
-			return n;
+			int mxsCounter = 0;		
+			for (list<Splines>::iterator si = representations.begin(); si != representations.end(); ++si, ++mxsCounter) 
+			{			
+				double l1 = ((*si).size()-2) * len  + sqrt(pow((*prev(prev((*si).end()))).x - (*prev((*si).end())).x, 2) + 
+																									 pow((*prev(prev((*si).end()))).y - (*prev((*si).end())).y, 2));	
+				double alen = (l2 + l1) / 2;											
+				double error = compareSplines((*si), s2, len);			
+				errors.push_back(error / alen);
+			}
+			
+			// cycle by errors		
+			int minErrori = 0;
+			for (int i = 0; i < errors.size(); ++i) 
+			{
+				//			qDebug()<<"error #" << i << " : " << errors[i];
+				if(errors[minErrori] > errors[i])
+				{
+					minErrori = i;			
+				}
+			}
+							
+			if(errors[minErrori] < ui->toleranceEdit->text().toFloat())
+			{
+				m = mxs[minErrori];
+				double intpart;			
+				if(modf((double)minErrori/2, &intpart) > 0)
+					reverse = 1;
+					
+				return n;
+			}
 		}
 	}
 	
@@ -1494,12 +1492,11 @@ void MainWindow::on_atomsList_currentItemChanged(QListWidgetItem *item, QListWid
 //			qDebug()<<"$$ " << ctrToString((*it2)).str().c_str();			
 //		}
 		
-
     this->update();
   }
 }
 
 double MainWindow::edist(const Point &p1, const Point &p2)
-{	
+{
 	return sqrt(pow(p1.x - p2.x,2) + pow(p1.y - p2.y,2));
 }
