@@ -326,13 +326,43 @@ void MainWindow::glyphToDraw(fg::Glyph &g, Point &tr)
   } 
 }
 
+int MainWindow::getReprs(const Contour &c, Representations &rs)
+{
+	if(c.empty())
+		return 0;
+	
+	int scaleXY[4][2] = {{1, 1}, {-1,1}, {1,-1}, {-1,-1}};
+	for (int i = 0; i < 4; ++i)
+	{
+		int dX = 0;
+		int dY = 0;							
+		Node lastn = (*prev(c.nodes.end()));	
+		dX = (scaleXY[i][0] == -1) ? lastn.p.x : -lastn.p.x;
+		dY = (scaleXY[i][1] == -1) ? lastn.p.y : -lastn.p.y;
+		rs.push_back(Representation(Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], 0, 0), false, contourToSplines(c, len, Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], 0, 0), 0)));
+		rs.push_back(Representation(Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], dX, dY), true, contourToSplines(c, len, Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], dX, dY), 1)));								
+	}
+	
+	return 1;
+}
 
+
+void MainWindow::decompose(AGlyphs &agdict, const Font &font)
+{				
+
+}
 
 void MainWindow::on_DecomposeBtn_clicked()
 {				
 	clock_t tStart = clock();
 	agdict.clear();
 	dict.clear();
+	rdict.clear();
+	
+	
+	
+	
+//	qDebug()<<" rdict.size() " << rdict.size();
 	// getting glyph 
 	Glyph* g;		
 	int glyphIndex = 0;
@@ -380,24 +410,35 @@ void MainWindow::on_DecomposeBtn_clicked()
 							ac.open = true;
 							dict.push_back(ac);					
 							usedIn.push_back(Ints());
-//							(*prev(usedIn.end())).push_back(glyphIndex);
 							usedIn[0].push_back(glyphIndex);
 							Contours::iterator ci = dict.end();
 							//prev(ci);
 							ci--;							
 							a = new Atom((*ci), Matrix(1, 0, 0, 1, pfirst.x, pfirst.y), 0, dict.size()-1);
+																					
+							if(ui->Rcaching->isChecked())
+							{								
+								Representations rs = Representations();
+								getReprs((*ci), rs);																								
+								rdict.push_back(rs);								
+							}
 						}
 						else 
 						{		
 							int n = checkNewAtom(ac, dict, m, reverse);		
 							if(n == -1 && dict.size() < 200000)
-							{		
+							{																								
 								ac.open = true;
-								dict.push_back(ac);
-								
+								dict.push_back(ac);								
 								Contours::iterator ci = dict.end();
-								ci--;
+								ci--;								
 								a = new Atom((*ci), Matrix(1,0,0,1, pfirst.x, pfirst.y), 0, dict.size()-1);
+								if(ui->Rcaching->isChecked())
+								{								
+									Representations *rs = new Representations();
+									getReprs((*ci), *rs);																								
+									rdict.push_back(*rs);								
+								}
 								usedIn.push_back(Ints());
 								(*prev(usedIn.end())).push_back(glyphIndex);
 							}
@@ -449,6 +490,28 @@ void MainWindow::on_DecomposeBtn_clicked()
   }
 
 	qDebug()<<" time: " << (double)(clock() - tStart)/CLOCKS_PER_SEC;	
+	
+	// mem cleaning
+//	for (list<Representations>::iterator it = rdict.begin(); it != rdict.end(); ++it) 
+//	{
+//		for (Representations::iterator ri = (*it).begin(); ri != (*it).end(); ++ri) 
+//		{
+//			delete(&(*ri));
+////			(*ri) = NULL;			
+//		}
+//	}
+	
+//	for (Contours::iterator it = dict.begin(); it != dict.end(); ++it)
+//	{
+//		delete(*it);
+//		(*it) = NULL;			
+//	}
+	
+//	for (AGlyphs::iterator it = agdict.begin(); it != agdict.end(); ++it) 
+//	{
+//		delete(*it);
+//		(*it) = NULL;		
+//	}
 }
 
 void MainWindow::coutMatrix(const string &header, const Matrix &m)
@@ -519,30 +582,50 @@ int MainWindow::checkNewAtom(const Contour &atom, Contours &dict, Matrix &m, int
 		
 		
 		if(bboxError < ui->toleranceEditBBox->text().toFloat())
-		{			
-			for (int i = 0; i < 4; ++i)
-			{
-				int dX = 0;
-				int dY = 0;							
-				Nodes::iterator afirst = (*it).nodes.begin();	
-				std::advance(afirst, (*it).nodes.size() - 1);			
-				dX = (scaleXY[i][0] == -1) ? (*afirst).p.x : -(*afirst).p.x; 				
-				dY = (scaleXY[i][1] == -1) ? (*afirst).p.y : -(*afirst).p.y;			
-				mxs.push_back(Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], 0, 0));
-				mxs.push_back(Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], dX, dY));
-				representations.push_back(contourToSplines((*it), len, Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], 0, 0), 0));
-				representations.push_back(contourToSplines((*it), len, Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], dX, dY), 1));										
-			}
+		{		
 			
-			int mxsCounter = 0;		
-			for (list<Splines>::iterator si = representations.begin(); si != representations.end(); ++si, ++mxsCounter) 
-			{			
-				double l1 = ((*si).size()-2) * len  + sqrt(pow((*prev(prev((*si).end()))).x - (*prev((*si).end())).x, 2) + 
-																									 pow((*prev(prev((*si).end()))).y - (*prev((*si).end())).y, 2));	
-				double alen = (l2 + l1) / 2;											
-				double error = compareSplines((*si), s2, len);			
-				errors.push_back(error / alen);
+			if(!ui->Rcaching->isChecked())
+			{
+				for (int i = 0; i < 4; ++i)
+				{
+					int dX = 0;
+					int dY = 0;							
+					Nodes::iterator afirst = (*it).nodes.begin();	
+					std::advance(afirst, (*it).nodes.size() - 1);			
+					dX = (scaleXY[i][0] == -1) ? (*afirst).p.x : -(*afirst).p.x; 				
+					dY = (scaleXY[i][1] == -1) ? (*afirst).p.y : -(*afirst).p.y;			
+					mxs.push_back(Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], 0, 0));
+					mxs.push_back(Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], dX, dY));
+					representations.push_back(contourToSplines((*it), len, Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], 0, 0), 0));
+					representations.push_back(contourToSplines((*it), len, Matrix(scaleXY[i][0], 0,0, scaleXY[i][1], dX, dY), 1));										
+				}
+				
+				int mxsCounter = 0;		
+				for (list<Splines>::iterator si = representations.begin(); si != representations.end(); ++si, ++mxsCounter) 
+				{			
+					double l1 = ((*si).size()-2) * len  + sqrt(pow((*prev(prev((*si).end()))).x - (*prev((*si).end())).x, 2) + 
+																										 pow((*prev(prev((*si).end()))).y - (*prev((*si).end())).y, 2));	
+					double alen = (l2 + l1) / 2;											
+					double error = compareSplines((*si), s2, len);			
+					errors.push_back(error / alen);
+				}
 			}
+			else
+			{
+				int mxsCounter = 0;		
+				list<Representations>::iterator ri = rdict.begin();
+				std::advance(ri,n);
+				for (Representations::iterator si = (*ri).begin(); si != (*ri).end(); ++si, ++mxsCounter)
+				{
+					
+					mxs.push_back((*si).m);
+					double l1 = ((*si).s.size()-2) * len  + sqrt(pow((*prev(prev((*si).s.end()))).x - (*prev((*si).s.end())).x, 2) + 
+																										 pow((*prev(prev((*si).s.end()))).y - (*prev((*si).s.end())).y, 2));
+					double alen = (l2 + l1) / 2;
+					double error = compareSplines((*si).s, s2, len);
+					errors.push_back(error / alen);
+				}
+			}						
 			
 			// cycle by errors		
 			int minErrori = 0;
@@ -556,7 +639,7 @@ int MainWindow::checkNewAtom(const Contour &atom, Contours &dict, Matrix &m, int
 			}
 							
 			if(errors[minErrori] < ui->toleranceEdit->text().toFloat())
-			{
+			{				
 				m = mxs[minErrori];
 				double intpart;			
 				if(modf((double)minErrori/2, &intpart) > 0)
@@ -571,8 +654,70 @@ int MainWindow::checkNewAtom(const Contour &atom, Contours &dict, Matrix &m, int
 	return -1;
 }
 		
+
+//void MainWindow::memtest(list<Jo> &objects)
+//{
+//	for (int var = 0; var < 100000; ++var) 
+//	{		
+//		objects.push_back(Jo());
+//	}	
+//}
+
+//void MainWindow::memtest1(list<Jo> &objects)
+//{
+//	for (int var = 0; var < 100000; ++var) 
+//	{
+//		Jo jo = Jo();
+//		objects.push_back(jo);
+//	}
+//}
+
+//void MainWindow::memtest2(list<Jo *> &objects)
+//{
+//	for (int var = 0; var < 100000; ++var) 
+//	{
+//		Jo *jo = new Jo();
+//		objects.push_back(jo);
+//	}
+//}
+
 void MainWindow::on_OneBtn_clicked()
 {
+	globalCtr == -23;
+	
+	clock_t tStart = clock();	
+	list<Jo> objects2;
+	memtest1(objects2);	
+	qDebug()<<" time: " << (double)(clock() - tStart)/CLOCKS_PER_SEC;	
+	
+	tStart = clock();	
+	list<Jo> objects;
+	memtest(objects);	
+	qDebug()<<" time: " << (double)(clock() - tStart)/CLOCKS_PER_SEC;		
+	
+	tStart = clock();	
+	list<Jo*> objects1;
+	memtest2(objects1);
+	qDebug()<<" time: " << (double)(clock() - tStart)/CLOCKS_PER_SEC;	
+	
+	
+	
+	
+	
+	
+//	double x = -0.7;
+//	double y = x;
+	
+//	for(int i = 0; i < 100; ++i)
+//	{
+//		y = pow(y,x);
+//		qDebug()<<y;
+//	}
+	
+	
+		
+			
+			
 	len = ui->lenEdit->text().toInt();
 	
 //	bool yeah = true;	
@@ -1034,23 +1179,24 @@ Contour MainWindow::contourToPoligone(Contour contour, int len)
    return splinesToContour(splines);
 }
 
-Splines MainWindow::contourToSplines(Contour contour, int len, Matrix m, bool reverse)
+Splines MainWindow::contourToSplines(const Contour &contour, int len, Matrix m, bool reverse)
 {
    std::list<fg::Curve> curves;
    fg::Integers intg;
    Splines splines;	 	 	 
 	 
-	 contour.transform(m);	
+	 Contour copy = contour;
+	 copy.transform(m);	
 	 
 	 if(reverse)
 	 {		 
-		 contour.reverse();
+		 copy.reverse();
 		 // and new transform		 
 	 }
 	 	  	 	 
 //	 qDebug()<<" FIRST.P " << (*(contour.nodes.begin())).p.x << " " <<(*(contour.nodes.begin())).p.y;
 	 
-   Grapheme::contourToCurves(curves, contour); 
+   Grapheme::contourToCurves(curves, copy); 
 	 Grapheme::curvesToSplines(curves, splines, intg, len);
    return splines;
 }

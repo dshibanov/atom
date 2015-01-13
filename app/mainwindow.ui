@@ -299,6 +299,26 @@ border-color: rgb(0, 0, 0);</string>
       </widget>
      </item>
      <item>
+      <widget class="QCheckBox" name="Rcaching">
+       <property name="font">
+        <font>
+         <family>Arial Black</family>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="text">
+        <string>R-caching</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QCheckBox" name="IgnoreStraight">
        <property name="font">
         <font>
@@ -320,7 +340,7 @@ border-color: rgb(0, 0, 0);</string>
      </item>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_4">
-       <item alignment="Qt::AlignLeft">
+       <item>
         <widget class="QLabel" name="label_5">
          <property name="font">
           <font>
@@ -337,10 +357,10 @@ border-color: rgb(0, 0, 0);</string>
 </string>
          </property>
          <property name="text">
-          <string>Length</string>
+          <string>Spline Length</string>
          </property>
          <property name="alignment">
-          <set>Qt::AlignCenter</set>
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>

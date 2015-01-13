@@ -200,6 +200,37 @@ public:
 
 typedef list<AGlyph> AGlyphs;
 
+class Representation
+{
+public:
+	Matrix m;
+	bool reverse;
+	Splines s;		
+	
+	Representation(Matrix &_m,bool _reverse, Splines _s) :
+		m(_m),
+		reverse(_reverse),
+	  s(_s)
+	{}
+};
+
+class Jo
+{
+public:
+	
+	list<int> massive;
+	Jo()
+	{
+		for (int i = 0; i < 100; ++i) 
+		{
+			massive.push_back(i);			
+		}
+	}
+	
+};
+
+typedef list<Representation> Representations;
+
 class ContourGlyph
 {
 public:
@@ -280,6 +311,7 @@ private:
 	int len;
 	vector<Ints> usedIn;
 	AGlyph *drawedGlyphIndex;
+	list<Representations> rdict;
 	
 		
 	Contour c1;
@@ -293,7 +325,7 @@ private:
 	int MainWindow::readFontFile(QString path, QString outPath);
 	Contour MainWindow::contourToPoligone(Contour contour, int len);
 	Contour MainWindow::splinesToContour(Splines splines);
-	Splines MainWindow::contourToSplines(Contour contour, int len, Matrix m = Matrix(1,0,0,1), bool reverse = false);
+	Splines MainWindow::contourToSplines(const Contour &contour, int len, Matrix m = Matrix(1,0,0,1), bool reverse = false);
 	void MainWindow::fillList();
 	void MainWindow::glyphToDraw(fg::Glyph &g, Point &tr = Point (0,0));
 	void addToDraw(Contour &c, const fg::Point &translation, int index);
@@ -308,9 +340,15 @@ private:
 	void MainWindow::coutSplines(const Splines &s);
 	std::stringstream MainWindow:: ctrToString(const Contour &contour);
 	double MainWindow::edist(const Point &p1, const Point &p2 = Point(0,0));
+	void MainWindow::decompose(AGlyphs &agdict, const Font &font);
 	// ---
 	
 	double MainWindow::angle(Point &p0, Point &p1);
+	int MainWindow::getReprs(const Contour &c, Representations &rs);
+	void MainWindow::memtest(list<Jo> &objects);
+	void MainWindow::memtest1(list<Jo> &objects);
+	void MainWindow::memtest2(list<Jo*> &objects);
+	
 	int MainWindow::getRepres(Contour source, Contours &cs);
 	void MainWindow::contoursToDraw(Contours cs, Point tr, QPainterPath &path);	
 	void paintEvent(QPaintEvent *e);
