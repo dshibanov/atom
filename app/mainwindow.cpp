@@ -357,12 +357,8 @@ void MainWindow::on_DecomposeBtn_clicked()
 	clock_t tStart = clock();
 	agdict.clear();
 	dict.clear();
-	rdict.clear();
+	rdict.clear();		
 	
-	
-	
-	
-//	qDebug()<<" rdict.size() " << rdict.size();
 	// getting glyph 
 	Glyph* g;		
 	int glyphIndex = 0;
@@ -396,7 +392,7 @@ void MainWindow::on_DecomposeBtn_clicked()
 					{
 						// new atom beginning	...
 						Matrix m;
-						Atom *a;											
+						Atom a;
 						ac.nodes.push_back((*ni));				
 						lastp = (*std::prev(ac.nodes.end())).p;				
 //						Rect r = ac.boundingBox(false);				
@@ -414,7 +410,7 @@ void MainWindow::on_DecomposeBtn_clicked()
 							Contours::iterator ci = dict.end();
 							//prev(ci);
 							ci--;							
-							a = new Atom((*ci), Matrix(1, 0, 0, 1, pfirst.x, pfirst.y), 0, dict.size()-1);
+							a = Atom((*ci), Matrix(1, 0, 0, 1, pfirst.x, pfirst.y), 0, dict.size()-1);
 																					
 							if(ui->Rcaching->isChecked())
 							{								
@@ -432,12 +428,12 @@ void MainWindow::on_DecomposeBtn_clicked()
 								dict.push_back(ac);								
 								Contours::iterator ci = dict.end();
 								ci--;								
-								a = new Atom((*ci), Matrix(1,0,0,1, pfirst.x, pfirst.y), 0, dict.size()-1);
+								a = Atom((*ci), Matrix(1,0,0,1, pfirst.x, pfirst.y), 0, dict.size()-1);
 								if(ui->Rcaching->isChecked())
 								{								
-									Representations *rs = new Representations();
-									getReprs((*ci), *rs);																								
-									rdict.push_back(*rs);								
+									Representations rs = Representations();
+									getReprs((*ci), rs);																								
+									rdict.push_back(rs);								
 								}
 								usedIn.push_back(Ints());
 								(*prev(usedIn.end())).push_back(glyphIndex);
@@ -446,15 +442,14 @@ void MainWindow::on_DecomposeBtn_clicked()
 							{								
 								Contours::iterator ci = dict.begin();
 								std::advance(ci, n);		
-								a = new Atom((*ci), Matrix(m.m11, m.m12, m.m21, m.m22, m.dx + pfirst.x, m.dy + pfirst.y), reverse, n);					
-//								usedIn.push_back(Ints());
+								a = Atom((*ci), Matrix(m.m11, m.m12, m.m21, m.m22, m.dx + pfirst.x, m.dy + pfirst.y), reverse, n);					
 								usedIn[n].push_back(glyphIndex);
 							}
 						}
 														
 		//				a->info("current ");	
-						a->usedIn.push_back(glyphIndex);
-						atoms.push_back(*a);
+						a.usedIn.push_back(glyphIndex);
+						atoms.push_back(a);
 										
 						// and here start to new atom
 						ac.clear();
@@ -492,14 +487,6 @@ void MainWindow::on_DecomposeBtn_clicked()
 	qDebug()<<" time: " << (double)(clock() - tStart)/CLOCKS_PER_SEC;	
 	
 	// mem cleaning
-//	for (list<Representations>::iterator it = rdict.begin(); it != rdict.end(); ++it) 
-//	{
-//		for (Representations::iterator ri = (*it).begin(); ri != (*it).end(); ++ri) 
-//		{
-//			delete(&(*ri));
-////			(*ri) = NULL;			
-//		}
-//	}
 	
 //	for (Contours::iterator it = dict.begin(); it != dict.end(); ++it)
 //	{
@@ -655,50 +642,24 @@ int MainWindow::checkNewAtom(const Contour &atom, Contours &dict, Matrix &m, int
 }
 		
 
-//void MainWindow::memtest(list<Jo> &objects)
-//{
-//	for (int var = 0; var < 100000; ++var) 
-//	{		
-//		objects.push_back(Jo());
-//	}	
-//}
-
-//void MainWindow::memtest1(list<Jo> &objects)
-//{
-//	for (int var = 0; var < 100000; ++var) 
-//	{
-//		Jo jo = Jo();
-//		objects.push_back(jo);
-//	}
-//}
-
-//void MainWindow::memtest2(list<Jo *> &objects)
-//{
-//	for (int var = 0; var < 100000; ++var) 
-//	{
-//		Jo *jo = new Jo();
-//		objects.push_back(jo);
-//	}
-//}
-
 void MainWindow::on_OneBtn_clicked()
 {
 	globalCtr == -23;
 	
-	clock_t tStart = clock();	
-	list<Jo> objects2;
-	memtest1(objects2);	
-	qDebug()<<" time: " << (double)(clock() - tStart)/CLOCKS_PER_SEC;	
+//	clock_t tStart = clock();	
+//	list<Jo> objects2;
+//	memtest1(objects2);	
+//	qDebug()<<" time: " << (double)(clock() - tStart)/CLOCKS_PER_SEC;	
 	
-	tStart = clock();	
-	list<Jo> objects;
-	memtest(objects);	
-	qDebug()<<" time: " << (double)(clock() - tStart)/CLOCKS_PER_SEC;		
+//	tStart = clock();	
+//	list<Jo> objects;
+//	memtest(objects);	
+//	qDebug()<<" time: " << (double)(clock() - tStart)/CLOCKS_PER_SEC;		
 	
-	tStart = clock();	
-	list<Jo*> objects1;
-	memtest2(objects1);
-	qDebug()<<" time: " << (double)(clock() - tStart)/CLOCKS_PER_SEC;	
+//	tStart = clock();	
+//	list<Jo*> objects1;
+//	memtest2(objects1);
+//	qDebug()<<" time: " << (double)(clock() - tStart)/CLOCKS_PER_SEC;	
 	
 	
 	

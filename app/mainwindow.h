@@ -345,9 +345,6 @@ private:
 	
 	double MainWindow::angle(Point &p0, Point &p1);
 	int MainWindow::getReprs(const Contour &c, Representations &rs);
-	void MainWindow::memtest(list<Jo> &objects);
-	void MainWindow::memtest1(list<Jo> &objects);
-	void MainWindow::memtest2(list<Jo*> &objects);
 	
 	int MainWindow::getRepres(Contour source, Contours &cs);
 	void MainWindow::contoursToDraw(Contours cs, Point tr, QPainterPath &path);	
