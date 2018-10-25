@@ -25,7 +25,7 @@ class AtomLib
 {
 	
 public:
-    static const int SCALE_XY[4][2];//[4][2] = {{1, 1}, {-1,1}, {1,-1}, {-1,-1}};
+    static const int SCALE_XY[4][2];
 
 
     bool 	compareBBox; // compare or not
@@ -85,9 +85,7 @@ private:
     int fillInsertPoints(XGlyphs &glyphs, list<Atom*> &dict);
     XGlyph* findGlyphByIndex(XGlyphs &glyphs, int index);
     InsertPoints findIn(XGlyph &g, Atom *a);
-    void printips(InsertPoints &ips);
-    //InsertPoints findIn(XGlyph &g, Atom *a);
-
+    void printips(InsertPoints &ips);    
 };
 
 

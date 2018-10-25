@@ -1,8 +1,6 @@
 ﻿#include "atomlib.h"
 #include <QDebug>
 
-//const int SCALEXY[4][2] = {{1, 1}, {-1,1}, {1,-1}, {-1,-1}};
-
 const int AtomLib::SCALE_XY[4][2] = {{1, 1}, {-1,1}, {1,-1}, {-1,-1}};
 
 AtomLib::AtomLib()
@@ -135,7 +133,6 @@ int atomsToContour(const XContour &xcontour, XNodes::const_iterator xNodesIt, in
         if((*atom.nodes.begin()).kind == Node::Move)
             (*atom.nodes.begin()).kind = Node::On;
 
-        //Matrix me = (*xNodesIt).m;
         atom.transform((*xNodesIt).m);
         std::stringstream s_result;
 
@@ -214,8 +211,7 @@ int AtomLib::findComposition(XContour &source, XNodes::iterator &sourceStart,
                     }
 
                     Representations::iterator ri = rs.begin();
-                    advance(ri, best);
-                    //Point joiningPoint = (*analyzedStart).firstJoiningPoint();
+                    advance(ri, best);                    
                     Point joiningPoint = getFirstJoiningPointOfXNode((*analyzedStart));
                     Matrix m = (*ri).m;
                     m.dx += joiningPoint.x;
@@ -297,11 +293,8 @@ Splines AtomLib::contourToSplines(const Contour &contour, int len, Matrix m, boo
 
     if(reverse)
     {
-        copy.reverse();
-        // and new transform
-    }
-
-    //	 qDebug()<<" FIRST.P " << (*(contour.nodes.begin())).p.x << " " <<(*(contour.nodes.begin())).p.y;
+        copy.reverse();        
+    }    
 
     Grapheme::contourToCurves(curves, copy);
     Grapheme::curvesToSplines(curves, splines, intg, len);
@@ -319,14 +312,11 @@ int AtomLib::getDictIndexOfAtom(const Contour &atom, Atoms &dict, Matrix &m, int
     Splines::iterator sF = s2.begin();
     std::advance(sF, 1);
     Rect r2 = atom.transformed(Matrix()).boundingBox(Matrix(), false);
-    Point p2 = Point(abs(r2.left() - r2.right()), abs(r2.bottom() - r2.top()));
-    //double l2 = splinesSize(s2, splineLength);
+    Point p2 = Point(abs(r2.left() - r2.right()), abs(r2.bottom() - r2.top()));    
 
-    //qDebug()<<" dict.size: " << dict.size();
     int n = 0;
     for (Atoms::iterator it = dict.begin(); it != dict.end(); ++it, ++n)
-    {
-        //qDebug()<<"....next";
+    {        
         errors.clear();
 
         double bboxError = 0;
@@ -406,10 +396,7 @@ int AtomLib::decompose(fg::Font* font, XGlyphs &aglyphs, Atoms &cdict)
     agGlyphs = &aglyphs;
     agGlyphs->clear();
     atomsDict->clear();
-    representationsDict.clear();
-
-    //cout << "in decompose.. font->glyphs.size() " << font->glyphs.size() << endl;
-    //cout << "settings.from " << settings.from << " settings.to " << settings.to << endl;
+    representationsDict.clear();    
 
     fg::Glyphs::iterator glyphsIt = font->glyphs.begin();
     int currentGlyphIndex = 0;
@@ -419,7 +406,7 @@ int AtomLib::decompose(fg::Font* font, XGlyphs &aglyphs, Atoms &cdict)
         currentGlyphIndex = from;
     }
 
-    Integers needFul = {37,39,40,43,44}; // temp. remove me
+    Integers needFul = {37,39,40,43,44}; // temp. remove me later
 
     // decompose --
     for (; glyphsIt != font->glyphs.end() && (allGlyphs == true || currentGlyphIndex < to); ++glyphsIt, ++currentGlyphIndex)
@@ -434,14 +421,9 @@ int AtomLib::decompose(fg::Font* font, XGlyphs &aglyphs, Atoms &cdict)
             Contours &currentGlyphsContours = currentGlyph->fgData()->findLayer("Body")->shapes.front().contours;
 
             for (fg::Contours::iterator contourIt = currentGlyphsContours.begin(); contourIt != currentGlyphsContours.end(); ++contourIt)
-            {
-                // так вот тут нужно сделать проверку..
-                // ну если у нас нет замыкания то нужно  его добавить..
-
-                //Contour &currentContour = (*contourIt);
+            {               
                 Contour currentContour = (*contourIt);
                 fixClosure(currentContour);
-
                 XContour contour;
                 Atom atom;
                 atom.open = true;
@@ -458,7 +440,6 @@ int AtomLib::decompose(fg::Font* font, XGlyphs &aglyphs, Atoms &cdict)
                         atom.transform(Matrix(1,0,0,1,-firstPoint.x,-firstPoint.y));
                         int reverse = 0;
 
-                        // check for new item
                         if(atomsDict->empty())
                         {
                             atom.open = true;
@@ -494,8 +475,7 @@ int AtomLib::decompose(fg::Font* font, XGlyphs &aglyphs, Atoms &cdict)
                                 std::advance(ci, atomIndex);
                                 Matrix mx = m;
                                 mx.dx += firstPoint.x; mx.dy += firstPoint.y;
-                                xnode = XNode((*ci), mx, reverse);
-                                //(*ci).usedIn.push_back(currentGlyphIndex);
+                                xnode = XNode((*ci), mx, reverse);                                
                             }
                         }
 
@@ -525,7 +505,7 @@ int AtomLib::decompose(fg::Font* font, XGlyphs &aglyphs, Atoms &cdict)
     return atomsDict->size();
 }
 
-int AtomLib::compressXGlyphs(XGlyphs &aglyphs, Atoms &cdict)//, AtomSettings *as)
+int AtomLib::compressXGlyphs(XGlyphs &aglyphs, Atoms &cdict)
 {	
     for (XGlyphs::iterator g = aglyphs.begin(); g != aglyphs.end(); ++g)
     {
@@ -538,7 +518,7 @@ int AtomLib::compressXGlyphs(XGlyphs &aglyphs, Atoms &cdict)//, AtomSettings *as
             {
                 bool compositionFound = false;
                 auto analyzedStartNode = sourceStartNode;
-                int itemsCount; // количество элементов! в найденной исходной комбинации
+                int itemsCount;
 
                 auto sourceFinishNode = sourceStartNode;
 
@@ -569,8 +549,7 @@ int AtomLib::compressXGlyphs(XGlyphs &aglyphs, Atoms &cdict)//, AtomSettings *as
 
                     // ------- for another glyphs --------
                     if(g != prev(aglyphs.end()))
-                    {
-                        //qDebug()<<"----------------- for another glyphs";
+                    {                        
                         for (XGlyphs::iterator g2 = next(g); g2 != aglyphs.end(); ++g2)
                         {
                             XGlyph &ag = (*g2);
@@ -582,7 +561,7 @@ int AtomLib::compressXGlyphs(XGlyphs &aglyphs, Atoms &cdict)//, AtomSettings *as
                                 int result = findComposition(source, sourceStartNode, atoms, analyzedStartNode, cdict, compositionFound);
                                 if(result > 0)
                                 {
-                                    itemsCount = 0; // количество элементов! в найденной исходной комбинации
+                                    itemsCount = 0;
                                     int count = 0;
                                     for (auto it = sourceStartNode; it != source.nodes.end() && count < result; ++it, itemsCount++)
                                     {
@@ -656,9 +635,7 @@ Ints AtomLib::getUsedIn(XGlyphs &agdict, Atom &a)
             {
                 XNode &xn = (*cnit);
                 if(xn.atom == &a)
-                    result.push_back(xg.index);
-                //if(xn.contourIndex != a.contourIndex)
-                //  qDebug() << "contourIndexes are different for &a: " << &a ;
+                    result.push_back(xg.index);                
             }
         }
     }
@@ -687,9 +664,7 @@ int AtomLib::stats2(fg::Font* font, XGlyphs &aglyphs, Atoms &regularDict, list<A
     decompose(font, aglyphs, regularDict);
     compressXGlyphs(aglyphs, regularDict);
     statLinks = suitableAtomsIndexes(regularDict, minAtomsCount);
-    fillInsertPoints(aglyphs, statLinks);
-    //statDict = regularDict;
-    //removeExcessAtoms(statDict, minAtomsCount);
+    fillInsertPoints(aglyphs, statLinks);    
     return 1;
 }
 
@@ -699,11 +674,7 @@ int AtomLib::fillInsertPoints(XGlyphs &glyphs, list<Atom*> &dict)
     for(auto it = dict.begin(); it != dict.end(); it++, ind++)
     {
         Atom *a = (*it);
-
-//        qDebug() << "b: " << intsToStr(a->usedIn).str().c_str();
-
         sort(a->usedIn.begin(),a->usedIn.end());
-//        qDebug() << "a: " << intsToStr(a->usedIn).str().c_str();
 
         qDebug() << "link index: " << ind;
         int prev_i = -1;
@@ -717,13 +688,8 @@ int AtomLib::fillInsertPoints(XGlyphs &glyphs, list<Atom*> &dict)
                 XGlyph *g = findGlyphByIndex(glyphs, i);
                 if(g != NULL)
                 {
-//                    ips.push_back(findIn(*g, a));
                     InsertPoints cr = findIn(*g, a);
                     ips.insert(ips.end(), cr.begin(), cr.end());
-
-
-//                    qDebug() << ips.size();
-//                    printips(ips);
                     a->insertPoints = ips;
                 }
                 else
@@ -776,48 +742,6 @@ InsertPoints AtomLib::findIn(XGlyph &g, Atom *a)
     }
     return ip;
 }
-
-/*
-XGlyph* AtomLib::findGlyphByIndex(XGlyphs &glyphs, int index)
-{
-
-}
-
-
-InsertPoints AtomLib::findIn(XGlyph &g, Atom *a)
-{
-    InsertPoints ip;
-    for(auto it = g.contours.begin(); it != g.contours.end(); it++)
-    {
-        XContour &c = (*it);
-        // by nodes
-        for(auto it2 = c.nodes.begin(); it2 != c.nodes.end(); it2++)
-        {
-            XNode &n = (*it2);
-
-
-//            qDebug() << a;//&n.atom;
-            if(n.atom == a)
-                ip.push_back({distance(g.contours.begin(), it),
-                              distance(c.nodes.begin(), it2)});
-
-
-            // тут достаточно просто сравнить атомы..
-            // ну т.е. если мы нашли что вот тут стоит такой то атом то все
-            // это означает что мы нашли где он используется..
-            // но... как нам тогда найти узел, ну стартовый узел в исходном глифе
-            // в котором у нас он не состоит из атомов
-
-            // тогда нам нужно посчитать количество узлов..
-            // тогда надо взять от той точки в которой мы сейчас находимся
-            // и.. собрать все xnodes в контур и посчитать количество узлов в нем..
-
-             // ок, ладно для начала просто найдем точку в XGlyph..
-        }
-    }
-    return ip;
-}
-*/
 
 int AtomLib::removeExcessAtoms(Atoms &dict, int maCount)
 {
@@ -895,8 +819,7 @@ int AtomLib::substituteSimpleNodes(XContour &xc)
             // 1. remove currentNode from xc
             xc.nodes.erase(it++);
 
-            // 2. insert atom's nodes
-            //xc.nodes.insert(it, a.nodes.begin(), a.nodes.end());
+            // 2. insert atom's nodes            
             xc.nodes.insert(it, xc.nodes.begin(), xc.nodes.end());
         }
         else
